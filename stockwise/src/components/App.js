@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import { Layout, Menu, Tooltip, notification } from 'antd';
 import axios from 'axios';
 import { DashboardOutlined, HistoryOutlined, ShoppingOutlined, CheckSquareOutlined, DatabaseOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
@@ -189,6 +189,7 @@ function App() {
             <Layout style={{ marginLeft: 200 }}>
               <Content>
                 <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" />} />
                   <Route path="/dashboard" element={<>
                     <h1 style={{ color: '#414141', marginTop: '10px', marginBottom: '20px' }}>Dashboard</h1>
                     <Dashboard itemSuggestions={itemSuggestions} />
