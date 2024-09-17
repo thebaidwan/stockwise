@@ -3,7 +3,7 @@ import { Card, Table, Row, Col, Input, Statistic, Pagination, Skeleton, AutoComp
 import { AlertOutlined, SearchOutlined, FireOutlined } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-//import UpcomingRequirements from './UpcomingRequirements';
+import UpcomingRequirements from './UpcomingRequirements';
 //import UsageTrends from './UsageTrends';
 //import OrderTrends from './OrderTrends';
 
@@ -71,7 +71,7 @@ const Dashboard = ({ itemSuggestions }) => {
     { title: "Item ID", dataIndex: "itemid", key: "itemid" },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Available Stock", render: (_, record) => calculateAvailableStock(record.history), key: "availableStock" },
-    { title: "Limit", render: (_, record) => calculateAvailableStock(record.history) < record.minlevel ? record.minlevel : record.maxlevel, key: "limit" }, // New Limit column
+    { title: "Limit", render: (_, record) => calculateAvailableStock(record.history) < record.minlevel ? record.minlevel : record.maxlevel, key: "limit" },
   ];
 
   const mostUsedColumns = [
@@ -333,17 +333,18 @@ const Dashboard = ({ itemSuggestions }) => {
         {renderPaginatedTable(allItems.sort((a, b) => calculateAvailableStock(b.history) - calculateAvailableStock(a.history)), quickStockColumns, activeCard === 'quickStock')}
       </div>
 
-      {
-        /*
-        <Row gutter={16}>
-          <Col span={24}>
+      <Row gutter={16}>
+          <Col span={15}>
             <UpcomingRequirements
               loading={loading}
               itemSuggestions={itemSuggestions}
+              calculateAvailableStock={calculateAvailableStock}
             />
           </Col>
         </Row>
-      
+
+      {
+        /*    
         <Row gutter={16} style={{ marginTop: 24 }}>
           <Col span={24}>
             <UsageTrends
