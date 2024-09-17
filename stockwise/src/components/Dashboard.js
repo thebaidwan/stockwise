@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Table, Row, Col, DatePicker, Select, Input, Statistic, Typography, Pagination, Skeleton, AutoComplete } from 'antd';
 import { Line } from "@ant-design/charts";
-import { AlertOutlined, SearchOutlined } from '@ant-design/icons';
+import { AlertOutlined, SearchOutlined, FireOutlined } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import moment from 'moment';
@@ -55,7 +55,7 @@ const Dashboard = ({ itemSuggestions }) => {
     const highStock = response.data.filter(item => calculateAvailableStock(item.history) > item.maxlevel);
     setStockAlertsLow(lowStock);
     setStockAlertsHigh(highStock);
-    setAllItems(response.data);
+    setAllItems(response.data.sort((a, b) => calculateAvailableStock(b.history) - calculateAvailableStock(a.history)));
   };
 
   const fetchRequirements = async () => {
@@ -75,13 +75,14 @@ const Dashboard = ({ itemSuggestions }) => {
     const itemsWithUsage = response.data.map(item => {
       const totalUsed = item.history.reduce((total, entry) => {
         const match = entry.match(/(-\d+)\s+Used/);
-        return match ? total + parseInt(match[1], 10) * -1 : total;
+        return match ? total + Math.abs(parseInt(match[1], 10)) : total;
       }, 0);
       return { ...item, totalUsed };
     });
     const sortedItems = itemsWithUsage.sort((a, b) => b.totalUsed - a.totalUsed);
     setMostUsedItem(sortedItems[0]);
-  };
+    setAllItems(sortedItems);
+  };  
 
   const handleDateChange = (dates) => {
     if (!dates) {
@@ -107,6 +108,12 @@ const Dashboard = ({ itemSuggestions }) => {
     { title: "Available Stock", render: (_, record) => calculateAvailableStock(record.history), key: "availableStock" },
   ];
 
+  const mostUsedColumns = [
+    { title: "Item ID", dataIndex: "itemid", key: "itemid" },
+    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Total Used", dataIndex: "totalUsed", key: "totalUsed" },
+  ];
+
   const requirementsColumns = [
     { title: "Job Number", dataIndex: "jobNumber", key: "jobNumber" },
     { title: "Needed By", dataIndex: "neededBy", key: "neededBy", render: (text) => moment(text).format('YYYY-MM-DD') },
@@ -124,6 +131,7 @@ const Dashboard = ({ itemSuggestions }) => {
 
   const handleQuickSearch = (value) => {
     setSearchTerm(value);
+    setIsSearching(value.length > 0);
     if (value) {
       const result = allItems.find(item =>
         item.itemid.toLowerCase() === value.toLowerCase() ||
@@ -136,8 +144,11 @@ const Dashboard = ({ itemSuggestions }) => {
   };
 
   const handleCardClick = (type) => {
-    if (type === 'quickStock' && quickSearchRef.current) {
-      quickSearchRef.current.focus();
+    if (type === 'quickStock') {
+      setActiveCard(activeCard === type ? null : type);
+      if (quickSearchRef.current) {
+        quickSearchRef.current.focus();
+      }
     } else {
       setActiveCard(activeCard === type ? null : type);
     }
@@ -169,7 +180,7 @@ const Dashboard = ({ itemSuggestions }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ marginTop: '20px', marginBottom: '20px', overflow: 'hidden' }}
+            style={{ marginTop: '20px', marginBottom: '40px', overflow: 'hidden' }}
           >
             <Table
               dataSource={currentItems}
@@ -194,6 +205,8 @@ const Dashboard = ({ itemSuggestions }) => {
     return option.value.toLowerCase().indexOf(inputValue.toLowerCase()) !== -1 ||
       option.label.toLowerCase().indexOf(inputValue.toLowerCase()) !== -1;
   };
+
+  const quickStockColumns = stockAlertColumns.filter(column => column.key !== 'totalUsed');
 
   return (
     <div className="dashboard" style={{ marginRight: '30px' }}>
@@ -259,11 +272,11 @@ const Dashboard = ({ itemSuggestions }) => {
               <Skeleton active />
             ) : (
               <Card
-                title="Most Used Item"
+                title={<span><FireOutlined style={{ color: 'orange' }} /> Most Used Item</span>}
                 bordered={false}
                 onClick={() => handleCardClick('mostUsed')}
                 hoverable
-                style={{ backgroundColor: activeCard === 'mostUsed' ? '#f0f0ff' : 'white', height: '100%' }}
+                style={{ backgroundColor: activeCard === 'mostUsed' ? '#fff5e6' : 'white', height: '100%' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>{mostUsedItem?.description}</span>
@@ -289,27 +302,66 @@ const Dashboard = ({ itemSuggestions }) => {
               <Skeleton active />
             ) : (
               <Card
-                title="Quick Stock"
+                title={
+                  <motion.div
+                    initial={false}
+                    animate={isSearching ? { height: 'auto' } : { height: 0 }}
+                  >
+                    <AutoComplete
+                      style={{ width: '100%' }}
+                      options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
+                      onSelect={(value, option) => handleQuickSearch(value)}
+                      onChange={(value) => handleQuickSearch(value)}
+                      value={searchTerm}
+                      filterOption={filterOptions}
+                    >
+                      <Input
+                        placeholder="Enter Item ID or Description"
+                        suffix={<SearchOutlined />}
+                        ref={quickSearchRef}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </AutoComplete>
+                  </motion.div>
+                }
+                extra={
+                  <motion.div
+                    initial={false}
+                    animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
+                  >
+                    Quick Stock Check
+                  </motion.div>
+                }
                 bordered={false}
                 onClick={() => handleCardClick('quickStock')}
                 hoverable
-                style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'filter 0.3s ease'
+                }}
               >
-                <AutoComplete
-                  style={{ width: '100%', marginBottom: '10px' }}
-                  options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
-                  onSelect={(value, option) => handleQuickSearch(value)}
-                  onChange={(value) => setSearchTerm(value)}
-                  value={searchTerm}
-                  filterOption={filterOptions}
+                <motion.div
+                  initial={false}
+                  animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
                 >
-                  <Input
-                    placeholder="Enter Item ID or Description"
-                    suffix={<SearchOutlined />}
-                    ref={quickSearchRef}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </AutoComplete>
+                  <AutoComplete
+                    style={{ width: '100%' }}
+                    options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
+                    onSelect={(value, option) => handleQuickSearch(value)}
+                    onChange={(value) => handleQuickSearch(value)}
+                    value={searchTerm}
+                    filterOption={filterOptions}
+                  >
+                    <Input
+                      placeholder="Enter Item ID or Description"
+                      suffix={<SearchOutlined />}
+                      ref={quickSearchRef}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </AutoComplete>
+                </motion.div>
                 {quickSearchResult && (
                   <Statistic
                     title={`${quickSearchResult.itemid} - ${quickSearchResult.description}`}
@@ -326,29 +378,9 @@ const Dashboard = ({ itemSuggestions }) => {
       <div style={{ marginTop: '20px', position: 'relative' }}>
         {renderPaginatedTable(stockAlertsLow, stockAlertColumns, activeCard === 'low')}
         {renderPaginatedTable(stockAlertsHigh, stockAlertColumns, activeCard === 'high')}
-        {renderPaginatedTable([mostUsedItem].filter(Boolean), [...stockAlertColumns, { title: "Total Used", dataIndex: "totalUsed", key: "totalUsed" }], activeCard === 'mostUsed')}
-        {renderPaginatedTable(allItems, [...stockAlertColumns, { title: "Total Used", dataIndex: "totalUsed", key: "totalUsed" }], activeCard === 'quickStock')}
+        {renderPaginatedTable(allItems.sort((a, b) => b.totalUsed - a.totalUsed), mostUsedColumns, activeCard === 'mostUsed')}
+        {renderPaginatedTable(allItems, quickStockColumns, activeCard === 'quickStock')}
       </div>
-
-      <AnimatePresence>
-        {isSearching && quickSearchResult && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ overflow: 'hidden', marginTop: '20px' }}
-          >
-            <Card>
-              <Statistic
-                title={`${quickSearchResult.itemid} - ${quickSearchResult.description}`}
-                value={calculateAvailableStock(quickSearchResult.history)}
-                suffix="units"
-              />
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <Row gutter={16}>
         <Col span={24}>
