@@ -3,6 +3,7 @@ import { Card, Select, Button, Table, Row, Col, Pagination, Skeleton } from 'ant
 import axios from 'axios';
 import moment from 'moment';
 import '../Dashboard.css';
+import InteractiveRequirementsChart from './InteractiveRequirementsChart';
 
 const { Option } = Select;
 
@@ -75,14 +76,14 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   ];
 
   const aggregatedData = aggregateRequirements(filteredRequirements);
-  const dataSource = aggregatedData.filter(item => {
+  const filteredData = aggregatedData.filter(item => {
     const stockDifference = item.availableStock - item.quantityNeeded;
     const isLowStock = showLowStock && stockDifference < 0;
     const isSelected = selectedItems.length === 0 || selectedItems.includes(item.itemId);
     return (!showLowStock || isLowStock) && isSelected;
   });
 
-  const paginatedData = dataSource.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) {
     return <Skeleton active />;
@@ -91,10 +92,10 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   return (
     <Card title="Upcoming Requirements" style={{ marginBottom: '16px' }}>
       <Row gutter={16} style={{ marginBottom: '16px' }}>
-        <Col span={19}>
+        <Col span={21}>
           <Select
             mode="multiple"
-            placeholder="Select items"
+            placeholder="Filter items"
             value={selectedItems}
             onChange={handleItemSelect}
             style={{ width: '100%' }}
@@ -110,29 +111,36 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
             ))}
           </Select>
         </Col>
-        <Col span={5}>
+        <Col span={3}>
           <Button onClick={toggleLowStock} style={{ width: '100%' }}>
-            {showLowStock ? 'Show All' : 'Filter Low Stock Items'}
+            {showLowStock ? 'Show All' : 'Filter Shortfall'}
           </Button>
         </Col>
       </Row>
-      <Table
-        dataSource={paginatedData}
-        columns={columns}
-        rowClassName={record => {
-          const item = itemSuggestions.find(s => s.itemid === record.itemId);
-          const availableStock = calculateAvailableStock(item?.history || []);
-          return availableStock < record.quantityNeeded ? 'highlight' : '';
-        }}
-        pagination={false}
-      />
-      <Pagination
-        current={currentPage}
-        pageSize={itemsPerPage}
-        total={dataSource.length}
-        onChange={(page) => setCurrentPage(page)}
-        style={{ marginTop: '16px', textAlign: 'right' }}
-      />
+      <Row gutter={16}>
+        <Col span={24}>
+          <Table
+            dataSource={paginatedData}
+            columns={columns}
+            rowClassName={record => {
+              const item = itemSuggestions.find(s => s.itemid === record.itemId);
+              const availableStock = calculateAvailableStock(item?.history || []);
+              return availableStock < record.quantityNeeded ? 'highlight' : '';
+            }}
+            pagination={false}
+          />
+          <Pagination
+            current={currentPage}
+            pageSize={itemsPerPage}
+            total={filteredData.length}
+            onChange={(page) => setCurrentPage(page)}
+            style={{ marginTop: '16px', textAlign: 'right', marginBottom: '16px' }}
+          />
+        </Col>
+        <Col span={24}>
+          <InteractiveRequirementsChart data={filteredData} />
+        </Col>
+      </Row>
     </Card>
   );
 };

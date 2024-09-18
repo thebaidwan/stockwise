@@ -176,6 +176,7 @@ function Requirements({ itemSuggestions }) {
                         type="number"
                         placeholder="Qty"
                         value={item.quantityNeeded}
+                        min={1}
                         onChange={(e) => handleInputChange(e.target.value, 'quantityNeeded', index, form)}
                         style={{ width: '100%' }}
                       />

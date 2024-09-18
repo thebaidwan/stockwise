@@ -334,7 +334,7 @@ const Dashboard = ({ itemSuggestions }) => {
       </div>
 
       <Row gutter={16}>
-          <Col span={15}>
+          <Col span={24}>
             <UpcomingRequirements
               loading={loading}
               itemSuggestions={itemSuggestions}
