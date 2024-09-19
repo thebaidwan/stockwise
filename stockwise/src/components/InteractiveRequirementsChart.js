@@ -29,9 +29,9 @@ const InteractiveRequirementsChart = ({ data }) => {
   };
 
   const barColors = {
-    "Quantity Needed": "#1890ff",
-    "Available Stock": "#52c41a",
-    Shortfall: "#f5222d"
+    "Quantity Needed": "#4A90E2",
+    "Available Stock": "#7ED321",
+    Shortfall: "#D0021B"
   };
 
   return (
@@ -59,18 +59,18 @@ const InteractiveRequirementsChart = ({ data }) => {
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip 
-            cursor={false}
+            cursor={{ fill: 'rgba(74, 144, 226, 0.1)' }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
                 return (
-                  <Card size="small" style={{ width: 220, padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                  <Card size="small" style={{ width: 240, padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
                     <p style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '5px' }}>{data.name} - {data.description}</p>
                     <p style={{ margin: '5px 0' }}>Quantity Needed: <span style={{ color: '#1890ff' }}>{data["Quantity Needed"]}</span></p>
                     <p style={{ margin: '5px 0' }}>Available Stock: <span style={{ color: '#52c41a' }}>{data["Available Stock"]}</span></p>
                     <p style={{ margin: '5px 0' }}>Shortfall: <span style={{ color: '#f5222d' }}>{data.Shortfall}</span></p>
                     <p style={{ margin: '5px 0' }}>Surplus: {data.Surplus}</p>
-                    <p style={{ margin: '5px 0' }}>Needed By: {data.neededBy}</p>
+                    <p style={{ margin: '5px 0' }}>Earliest Needed: {data.neededBy}</p>
                   </Card>
                 );
               }

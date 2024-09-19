@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Select, Button, Table, Row, Col, Pagination, Skeleton } from 'antd';
+import { Card, Select, Button, Table, Row, Col, Pagination, Skeleton, Tooltip } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 import '../Dashboard.css';
 import InteractiveRequirementsChart from './InteractiveRequirementsChart';
+import { ClearOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -66,6 +67,11 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
     setShowLowStock(!showLowStock);
   };
 
+  const clearFilters = () => {
+    setSelectedItems([]);
+    setShowLowStock(false);
+  };
+
   const columns = [
     { title: 'Item ID', dataIndex: 'itemId', key: 'itemId' },
     { title: 'Description', dataIndex: 'description', key: 'description' },
@@ -111,14 +117,22 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
             ))}
           </Select>
         </Col>
-        <Col span={3}>
-          <Button onClick={toggleLowStock} style={{ width: '100%' }}>
-            {showLowStock ? 'Show All' : 'Filter Shortfall'}
+        <Col span={2}>
+          <Button onClick={toggleLowStock} style={{ width: '100%' }} type={showLowStock ? 'primary' : 'default'}>
+            Filter Shortfalls
           </Button>
+        </Col>
+        <Col span={1}>
+          <Tooltip title="Clear All Filters">
+            <Button onClick={clearFilters} icon={<ClearOutlined />} style={{ width: '100%' }} />
+          </Tooltip>
         </Col>
       </Row>
       <Row gutter={16}>
         <Col span={24}>
+          <InteractiveRequirementsChart data={filteredData} />
+        </Col>
+        <Col span={24} style={{ marginTop: '16px' }}>
           <Table
             dataSource={paginatedData}
             columns={columns}
@@ -128,17 +142,15 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
               return availableStock < record.quantityNeeded ? 'highlight' : '';
             }}
             pagination={false}
+            bordered
           />
           <Pagination
             current={currentPage}
             pageSize={itemsPerPage}
             total={filteredData.length}
             onChange={(page) => setCurrentPage(page)}
-            style={{ marginTop: '16px', textAlign: 'right', marginBottom: '16px' }}
+            style={{ marginTop: '16px', textAlign: 'right' }}
           />
-        </Col>
-        <Col span={24}>
-          <InteractiveRequirementsChart data={filteredData} />
         </Col>
       </Row>
     </Card>
