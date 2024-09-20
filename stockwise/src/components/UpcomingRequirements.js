@@ -96,8 +96,8 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   }
 
   return (
-    <Card title="Upcoming Requirements" style={{ marginBottom: '16px' }}>
-      <Row gutter={16} style={{ marginBottom: '16px' }}>
+    <Card title="Upcoming Requirements" style={{ marginBottom: '5px' }}>
+      <Row gutter={16} style={{ marginBottom: '20px' }}>
         <Col span={21}>
           <Select
             mode="multiple"
@@ -129,11 +129,12 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
         </Col>
       </Row>
       <Row gutter={16}>
-        <Col span={24}>
+        <Col span={24} style={{ marginBottom: '20px' }}>
           <InteractiveRequirementsChart data={filteredData} />
         </Col>
-        <Col span={24} style={{ marginTop: '16px' }}>
+        <Col span={24} style={{ marginTop: '10px' }}>
           <Table
+            className="compact-table"
             dataSource={paginatedData}
             columns={columns}
             rowClassName={record => {

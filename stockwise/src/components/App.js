@@ -186,7 +186,7 @@ function App() {
                 Logout
               </div>
             </Sider>
-            <Layout style={{ marginLeft: 200 }}>
+            <Layout style={{ marginLeft: 200, backgroundColor: '#efefef' }}>
               <Content>
                 <Routes>
                   <Route path="/" element={<Navigate to="/dashboard" />} />

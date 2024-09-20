@@ -29,9 +29,9 @@ const InteractiveRequirementsChart = ({ data }) => {
   };
 
   const barColors = {
-    "Quantity Needed": "#4A90E2",
-    "Available Stock": "#7ED321",
-    Shortfall: "#D0021B"
+    "Quantity Needed": "#4682B4",
+    "Available Stock": "#3CB371",
+    Shortfall: "#FF6347"
   };
 
   return (

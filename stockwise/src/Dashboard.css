@@ -1,5 +1,14 @@
 .highlight {
-  background: linear-gradient(90deg, rgba(255, 99, 71, 0.1) 0%, rgba(255, 99, 71, 0.2) 100%);
-  border-radius: 8px;
+  background: rgba(245, 34, 45, 0.03);
   transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.compact-table .ant-table-cell {
+  padding: 5px;
+  font-size: 14px;
+}
+
+.compact-table .ant-table-thead > tr > th {
+  padding: 5px;
+  font-size: 14px;
 }
