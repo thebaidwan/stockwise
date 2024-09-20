@@ -92,7 +92,17 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) {
-    return <Skeleton active />;
+    return (
+      <Card title="Upcoming Requirements" style={{ marginBottom: '5px' }}>
+        <Skeleton active>
+          <Skeleton.Button style={{ width: 210, marginBottom: 8 }} active size="large" />
+          <Skeleton.Input style={{ width: '100%', marginBottom: 8 }} active size="large" />
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton.Input key={index} style={{ width: '100%', marginBottom: 8 }} active size="default" />
+          ))}
+        </Skeleton>
+      </Card>
+    );
   }
 
   return (

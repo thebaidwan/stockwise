@@ -63,6 +63,21 @@ function Requirements({ itemSuggestions }) {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ marginRight: '30px' }}>
+        <Card title="Add Requirements" style={{ marginBottom: '20px' }}>
+          <Skeleton active>
+            <Skeleton.Input style={{ width: '100%' }} active />
+            <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
+            <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
+            <Skeleton.Button style={{ width: '100%', marginTop: '16px' }} active />
+          </Skeleton>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div style={{ marginRight: '30px' }}>
       {loading ? (

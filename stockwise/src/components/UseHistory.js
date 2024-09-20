@@ -72,23 +72,22 @@ function UseHistory({ itemSuggestions }) {
     <div style={{ marginRight: '30px' }}>
       {loading ? (
         <>
-          <Skeleton active>
-            <Card title={<Skeleton.Input style={{ width: '150px' }} active />} style={{ marginBottom: '20px' }}>
+          <Card title="Add Use History" style={{ marginBottom: '20px' }}>
+            <Skeleton active>
               <Skeleton.Input style={{ width: '100%' }} active />
               <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
               <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
               <Skeleton.Button style={{ width: '100%', marginTop: '16px' }} active />
-            </Card>
-          </Skeleton>
-
-          <Skeleton active>
-            <Card title={<Skeleton.Input style={{ width: '150px' }} active />} style={{ marginBottom: '20px' }}>
+            </Skeleton>
+          </Card>
+          <Card title="Use History" style={{ marginBottom: '20px' }}>
+            <Skeleton active>
               <Skeleton.Input style={{ width: '100%' }} active />
               <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
               <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
               <Skeleton.Button style={{ width: '100%', marginTop: '16px' }} active />
-            </Card>
-          </Skeleton>
+            </Skeleton>
+          </Card>
         </>
       ) : (
         <>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Popconfirm } from 'antd';
+import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Popconfirm, Skeleton } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 import { useItemChange } from './useItemChange';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -165,11 +165,13 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
               style={{ width: 300, marginRight: '16px' }}
               onChange={(e) => setSearchTerm(e.target.value)}
               id="search-items-field"
+              disabled={loading}
             />
             <Button
               icon={sortOrder === 'desc' ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
               onClick={toggleSortOrder}
               style={{ marginRight: '16px' }}
+              disabled={loading}
             >
               Sort by Date
             </Button>
@@ -182,6 +184,7 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
                   borderColor: showEditButtons ? '#52c41a' : undefined,
                   color: showEditButtons ? '#fff' : undefined,
                 }}
+                disabled={loading}
               >
                 {showEditButtons ? 'Save' : 'Edit'}
               </Button>
@@ -189,62 +192,66 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
           </div>
         }
       >
-        <Spin spinning={loading} style={{ paddingTop: '20px' }}>
-          <div style={{ display: loading ? 'none' : 'block' }}>
-            {!loading && paginatedOrders.length > 0 ? (
-              <TransitionGroup>
-                {paginatedOrders.map(order => (
-                  <CSSTransition
-                    key={order._id.$oid}
-                    timeout={500}
-                    classNames="page-change"
-                  >
-                    <Collapse
-                      activeKey={activePanels}
-                      onChange={handlePanelChange}
-                      bordered={true}
-                      style={{ marginBottom: '10px' }}
+        {loading ? (
+          <Skeleton active paragraph={{ rows: 4 }} />
+        ) : (
+          <Spin spinning={loading} style={{ paddingTop: '20px' }}>
+            <div style={{ display: loading ? 'none' : 'block' }}>
+              {!loading && paginatedOrders.length > 0 ? (
+                <TransitionGroup>
+                  {paginatedOrders.map(order => (
+                    <CSSTransition
+                      key={order._id.$oid}
+                      timeout={500}
+                      classNames="page-change"
                     >
-                      <Panel
-                        header={
-                          <Row>
-                            <Col span={12}><strong>PO Number:</strong> {order.poNumber || 'N/A'}</Col>
-                            <Col span={12}><strong>Date Received:</strong> {order.dateReceived ? new Date(order.dateReceived).toLocaleDateString() : 'N/A'}</Col>
-                          </Row>
-                        }
-                        key={order._id.$oid}
-                        extra={
-                          showEditButtons && (
-                            <>
-                              <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(order)} />
-                              <Tooltip title="Delete">
-                                <Button type="link" icon={<DeleteOutlined style={{ color: 'red' }} />} onClick={() => handleDeleteOrderHistory(order._id)} />
-                              </Tooltip>
-                            </>
-                          )
-                        }
+                      <Collapse
+                        activeKey={activePanels}
+                        onChange={handlePanelChange}
+                        bordered={true}
+                        style={{ marginBottom: '10px' }}
                       >
-                        <List
-                          itemLayout="horizontal"
-                          dataSource={order.items || []}
-                          renderItem={item => (
-                            <List.Item>
-                              <List.Item.Meta
-                                title={`Item ID: ${item.itemId || 'N/A'}`}
-                                description={item.description || 'N/A'}
-                              />
-                              <div>Quantity Received: {item.quantityReceived || 'N/A'}</div>
-                            </List.Item>
-                          )}
-                        />
-                      </Panel>
-                    </Collapse>
-                  </CSSTransition>
-                ))}
-              </TransitionGroup>
-            ) : <Empty />}
-          </div>
-        </Spin>
+                        <Panel
+                          header={
+                            <Row>
+                              <Col span={12}><strong>PO Number:</strong> {order.poNumber || 'N/A'}</Col>
+                              <Col span={12}><strong>Date Received:</strong> {order.dateReceived ? new Date(order.dateReceived).toLocaleDateString() : 'N/A'}</Col>
+                            </Row>
+                          }
+                          key={order._id.$oid}
+                          extra={
+                            showEditButtons && (
+                              <>
+                                <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(order)} />
+                                <Tooltip title="Delete">
+                                  <Button type="link" icon={<DeleteOutlined style={{ color: 'red' }} />} onClick={() => handleDeleteOrderHistory(order._id)} />
+                                </Tooltip>
+                              </>
+                            )
+                          }
+                        >
+                          <List
+                            itemLayout="horizontal"
+                            dataSource={order.items || []}
+                            renderItem={item => (
+                              <List.Item>
+                                <List.Item.Meta
+                                  title={`Item ID: ${item.itemId || 'N/A'}`}
+                                  description={item.description || 'N/A'}
+                                />
+                                <div>Quantity Received: {item.quantityReceived || 'N/A'}</div>
+                              </List.Item>
+                            )}
+                          />
+                        </Panel>
+                      </Collapse>
+                    </CSSTransition>
+                  ))}
+                </TransitionGroup>
+              ) : <Empty />}
+            </div>
+          </Spin>
+        )}
 
         <Row justify="space-between" align="left" style={{ marginTop: '16px' }}>
           <Col>

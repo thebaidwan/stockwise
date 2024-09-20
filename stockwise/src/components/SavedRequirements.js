@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Input as AntdInput, Popconfirm } from 'antd';
+import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Input as AntdInput, Popconfirm, Skeleton } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 import { useItemChange } from './useItemChange';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -222,8 +222,10 @@ function SavedRequirements({ refresh, itemSuggestions }) {
           </div>
         }
       >
-        <Spin spinning={loading} style={{ paddingTop: '20px' }}>
-          <div style={{ display: loading ? 'none' : 'block' }}>
+        {loading ? (
+          <Skeleton active />
+        ) : (
+          <div style={{ display: 'block' }}>
             {paginatedRequirements.length > 0 ? (
               <TransitionGroup>
                 {paginatedRequirements.map(requirement => (
@@ -282,7 +284,7 @@ function SavedRequirements({ refresh, itemSuggestions }) {
               <Empty description="No data" />
             )}
           </div>
-        </Spin>
+        )}
 
         <Row justify="space-between" align="left" style={{ marginTop: '16px' }}>
           <Col>

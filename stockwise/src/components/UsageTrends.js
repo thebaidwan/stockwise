@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Select, Spin } from 'antd';
+import { Card, Select, Skeleton } from 'antd';
 import { ResponsiveRadar } from '@nivo/radar';
 import axios from 'axios';
 import moment from 'moment';
@@ -10,6 +10,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [usageData, setUsageData] = useState([]);
     const [chartData, setChartData] = useState([]);
+    const [highlightedItem, setHighlightedItem] = useState(null);
 
     useEffect(() => {
         if (!loading && mostUsedItem) {
@@ -75,10 +76,43 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
         setSelectedItems(selectedItems);
     };
 
+    const handleLegendClick = (item) => {
+        setHighlightedItem(item === highlightedItem ? null : item);
+    };
+
+    const handleChartClick = () => {
+        setHighlightedItem(null);
+    };
+
+    const emptyChartData = [
+        { month: 'January', empty: 0 },
+        { month: 'February', empty: 0 },
+        { month: 'March', empty: 0 },
+        { month: 'April', empty: 0 },
+        { month: 'May', empty: 0 },
+        { month: 'June', empty: 0 },
+        { month: 'July', empty: 0 },
+        { month: 'August', empty: 0 },
+        { month: 'September', empty: 0 },
+        { month: 'October', empty: 0 },
+        { month: 'November', empty: 0 },
+        { month: 'December', empty: 0 },
+    ];
+
+    const expandedColors = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', 
+        '#3EC1D3', '#F85F73', '#55E6C1', '#F7D794', '#82589F'
+    ];
+
+    const colors = ({ key }) =>
+        highlightedItem && key !== highlightedItem
+            ? '#e0e0e0'
+            : expandedColors[selectedItems.indexOf(key) % expandedColors.length];
+
     return (
         <Card title="Usage Trends" style={{ marginBottom: 24 }}>
             {loading ? (
-                <Spin spinning={loading}></Spin>
+                <Skeleton active />
             ) : (
                 <>
                     <Select
@@ -92,57 +126,56 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                             value: item.itemid
                         }))}
                     />
-                    {chartData.length > 0 ? (
-                        <div style={{ height: 400 }}>
-                            <ResponsiveRadar
-                                data={chartData}
-                                keys={selectedItems}
-                                indexBy="month"
-                                maxValue="auto"
-                                margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
-                                curve="linearClosed"
-                                borderWidth={2}
-                                borderColor={{ from: 'color' }}
-                                gridLevels={5}
-                                gridShape="circular"
-                                gridLabelOffset={36}
-                                enableDots={true}
-                                dotSize={10}
-                                dotColor={{ theme: 'background' }}
-                                dotBorderWidth={2}
-                                dotBorderColor={{ from: 'color' }}
-                                enableDotLabel={true}
-                                dotLabel="value"
-                                dotLabelYOffset={-12}
-                                colors={{ scheme: 'nivo' }}
-                                fillOpacity={0.25}
-                                blendMode="multiply"
-                                animate={false}
-                                isInteractive={true}
-                                legends={[
-                                    {
-                                        anchor: 'top-left',
-                                        direction: 'column',
-                                        translateX: -50,
-                                        translateY: -40,
-                                        itemWidth: 80,
-                                        itemHeight: 20,
-                                        itemTextColor: '#999',
-                                        symbolSize: 12,
-                                        symbolShape: 'circle',
-                                        effects: [
-                                            {
-                                                on: 'hover',
-                                                style: {
-                                                    itemTextColor: '#000'
-                                                }
+                    <div style={{ height: 400 }} onClick={handleChartClick}>
+                        <ResponsiveRadar
+                            data={selectedItems.length === 0 ? emptyChartData : chartData}
+                            keys={selectedItems.length === 0 ? ['empty'] : selectedItems}
+                            indexBy="month"
+                            maxValue="auto"
+                            margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
+                            curve="linearClosed"
+                            borderWidth={2}
+                            borderColor={{ from: 'color' }}
+                            gridLevels={5}
+                            gridShape="circular"
+                            gridLabelOffset={36}
+                            enableDots={true}
+                            dotSize={10}
+                            dotColor={{ theme: 'background' }}
+                            dotBorderWidth={2}
+                            dotBorderColor={{ from: 'color' }}
+                            enableDotLabel={true}
+                            dotLabel="value"
+                            dotLabelYOffset={-12}
+                            colors={colors}
+                            fillOpacity={0.25}
+                            blendMode="multiply"
+                            animate={false}
+                            isInteractive={true}
+                            legends={[
+                                {
+                                    anchor: 'top-left',
+                                    direction: 'column',
+                                    translateX: -50,
+                                    translateY: -40,
+                                    itemWidth: 80,
+                                    itemHeight: 20,
+                                    itemTextColor: '#999',
+                                    symbolSize: 12,
+                                    symbolShape: 'circle',
+                                    effects: [
+                                        {
+                                            on: 'hover',
+                                            style: {
+                                                itemTextColor: '#000'
                                             }
-                                        ]
-                                    }
-                                ]}
-                            />
-                        </div>
-                    ) : null}
+                                        }
+                                    ],
+                                    onClick: handleLegendClick
+                                }
+                            ]}
+                        />
+                    </div>
                 </>
             )}
         </Card>

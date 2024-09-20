@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Popconfirm } from 'antd';
+import { Empty, Card, Collapse, Input, List, Row, Col, Pagination, Select, Button, Modal, Spin, notification, Tooltip, Form, Popconfirm, Skeleton } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 import { useItemChange } from './useItemChange';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -157,7 +157,7 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
     <>
       <Card
         title="Use History"
-        style={{ marginTop: '20px', buse: 'none' }}
+        style={{ marginTop: '20px', border: 'none' }}
         extra={
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Input.Search
@@ -165,11 +165,13 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
               style={{ width: 300, marginRight: '16px' }}
               onChange={(e) => setSearchTerm(e.target.value)}
               id="search-items-field"
+              disabled={loading}
             />
             <Button
               icon={sortUse === 'desc' ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
               onClick={toggleSortUse}
               style={{ marginRight: '16px' }}
+              disabled={loading}
             >
               Sort by Date
             </Button>
@@ -179,9 +181,10 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
                 onClick={() => setShowEditButtons(!showEditButtons)}
                 style={{
                   backgroundColor: showEditButtons ? '#52c41a' : undefined,
-                  buseColor: showEditButtons ? '#52c41a' : undefined,
+                  borderColor: showEditButtons ? '#52c41a' : undefined,
                   color: showEditButtons ? '#fff' : undefined,
                 }}
+                disabled={loading}
               >
                 {showEditButtons ? 'Save' : 'Edit'}
               </Button>
@@ -189,62 +192,70 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
           </div>
         }
       >
-        <Spin spinning={loading} style={{ paddingTop: '20px' }}>
-          <div style={{ display: loading ? 'none' : 'block' }}>
-            {!loading && paginatedUses.length > 0 ? (
-              <TransitionGroup>
-                {paginatedUses.map(use => (
-                  <CSSTransition
-                    key={use._id.$oid}
-                    timeout={500}
-                    classNames="page-change"
-                  >
-                    <Collapse
-                      activeKey={activePanels}
-                      onChange={handlePanelChange}
-                      buseed={true}
-                      style={{ marginBottom: '10px' }}
+        {loading ? (
+          <Skeleton active>
+            <Skeleton.Input style={{ width: '100%' }} active />
+            <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
+            <Skeleton.Input style={{ width: '100%', marginTop: '16px' }} active />
+          </Skeleton>
+        ) : (
+          <Spin spinning={loading} style={{ paddingTop: '20px' }}>
+            <div style={{ display: loading ? 'none' : 'block' }}>
+              {!loading && paginatedUses.length > 0 ? (
+                <TransitionGroup>
+                  {paginatedUses.map(use => (
+                    <CSSTransition
+                      key={use._id.$oid}
+                      timeout={500}
+                      classNames="page-change"
                     >
-                      <Panel
-                        header={
-                          <Row>
-                            <Col span={12}><strong>Job Number:</strong> {use.jobNumber || 'N/A'}</Col>
-                            <Col span={12}><strong>Date Used:</strong> {use.dateUsed ? new Date(use.dateUsed).toLocaleDateString() : 'N/A'}</Col>
-                          </Row>
-                        }
-                        key={use._id.$oid}
-                        extra={
-                          showEditButtons && (
-                            <>
-                              <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(use)} />
-                              <Tooltip title="Delete">
-                                <Button type="link" icon={<DeleteOutlined style={{ color: 'red' }} />} onClick={() => handleDeleteUseHistory(use._id)} />
-                              </Tooltip>
-                            </>
-                          )
-                        }
+                      <Collapse
+                        activeKey={activePanels}
+                        onChange={handlePanelChange}
+                        bordered={true}
+                        style={{ marginBottom: '10px' }}
                       >
-                        <List
-                          itemLayout="horizontal"
-                          dataSource={use.items || []}
-                          renderItem={item => (
-                            <List.Item>
-                              <List.Item.Meta
-                                title={`Item ID: ${item.itemId || 'N/A'}`}
-                                description={item.description || 'N/A'}
-                              />
-                              <div>Quantity Used: {item.quantityUsed || 'N/A'}</div>
-                            </List.Item>
-                          )}
-                        />
-                      </Panel>
-                    </Collapse>
-                  </CSSTransition>
-                ))}
-              </TransitionGroup>
-            ) : <Empty />}
-          </div>
-        </Spin>
+                        <Panel
+                          header={
+                            <Row>
+                              <Col span={12}><strong>Job Number:</strong> {use.jobNumber || 'N/A'}</Col>
+                              <Col span={12}><strong>Date Used:</strong> {use.dateUsed ? new Date(use.dateUsed).toLocaleDateString() : 'N/A'}</Col>
+                            </Row>
+                          }
+                          key={use._id.$oid}
+                          extra={
+                            showEditButtons && (
+                              <>
+                                <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(use)} />
+                                <Tooltip title="Delete">
+                                  <Button type="link" icon={<DeleteOutlined style={{ color: 'red' }} />} onClick={() => handleDeleteUseHistory(use._id)} />
+                                </Tooltip>
+                              </>
+                            )
+                          }
+                        >
+                          <List
+                            itemLayout="horizontal"
+                            dataSource={use.items || []}
+                            renderItem={item => (
+                              <List.Item>
+                                <List.Item.Meta
+                                  title={`Item ID: ${item.itemId || 'N/A'}`}
+                                  description={item.description || 'N/A'}
+                                />
+                                <div>Quantity Used: {item.quantityUsed || 'N/A'}</div>
+                              </List.Item>
+                            )}
+                          />
+                        </Panel>
+                      </Collapse>
+                    </CSSTransition>
+                  ))}
+                </TransitionGroup>
+              ) : <Empty />}
+            </div>
+          </Spin>
+        )}
 
         <Row justify="space-between" align="left" style={{ marginTop: '16px' }}>
           <Col>

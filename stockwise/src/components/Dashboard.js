@@ -171,19 +171,22 @@ const Dashboard = ({ itemSuggestions }) => {
             whileTap="active"
             style={{ height: '100%' }}
           >
-            {loading ? (
-              <Skeleton active />
-            ) : (
-              <Card
-                title={<span><AlertOutlined style={{ color: 'red' }} /> Low Stocks </span>}
-                bordered={true}
-                onClick={() => handleCardClick('low')}
-                hoverable
-                style={{ backgroundColor: activeCard === 'low' ? '#fff0f0' : 'white', height: '100%' }}
-              >
+            <Card
+              title={<span><AlertOutlined style={{ color: 'red' }} /> Low Stocks </span>}
+              bordered={true}
+              onClick={() => handleCardClick('low')}
+              hoverable
+              style={{ backgroundColor: activeCard === 'low' ? '#fff0f0' : 'white', height: '100%' }}
+            >
+              {loading ? (
+                <Skeleton active>
+                  <Skeleton.Input style={{ width: 200 }} active size="small" />
+                  <Skeleton.Button style={{ width: 100 }} active size="small" />
+                </Skeleton>
+              ) : (
                 <Statistic value={stockAlertsLow.length} valueStyle={{ color: '#cf1322' }} />
-              </Card>
-            )}
+              )}
+            </Card>
           </motion.div>
         </Col>
         <Col span={6}>
@@ -195,19 +198,22 @@ const Dashboard = ({ itemSuggestions }) => {
             whileTap="active"
             style={{ height: '100%' }}
           >
-            {loading ? (
-              <Skeleton active />
-            ) : (
-              <Card
-                title={<span><AlertOutlined style={{ color: 'green' }} /> High Stocks </span>}
-                bordered={true}
-                onClick={() => handleCardClick('high')}
-                hoverable
-                style={{ backgroundColor: activeCard === 'high' ? '#f0fff0' : 'white', height: '100%' }}
-              >
+            <Card
+              title={<span><AlertOutlined style={{ color: 'green' }} /> High Stocks </span>}
+              bordered={true}
+              onClick={() => handleCardClick('high')}
+              hoverable
+              style={{ backgroundColor: activeCard === 'high' ? '#f0fff0' : 'white', height: '100%' }}
+            >
+              {loading ? (
+                <Skeleton active>
+                  <Skeleton.Input style={{ width: 200 }} active size="small" />
+                  <Skeleton.Button style={{ width: 100 }} active size="small" />
+                </Skeleton>
+              ) : (
                 <Statistic value={stockAlertsHigh.length} valueStyle={{ color: '#3f8600' }} />
-              </Card>
-            )}
+              )}
+            </Card>
           </motion.div>
         </Col>
         <Col span={6}>
@@ -219,16 +225,19 @@ const Dashboard = ({ itemSuggestions }) => {
             whileTap="active"
             style={{ height: '100%' }}
           >
-            {loading ? (
-              <Skeleton active />
-            ) : (
-              <Card
-                title={<span><FireOutlined style={{ color: 'orange' }} /> Most Used Item</span>}
-                bordered={false}
-                onClick={() => handleCardClick('mostUsed')}
-                hoverable
-                style={{ backgroundColor: activeCard === 'mostUsed' ? '#fff5e6' : 'white', height: '100%' }}
-              >
+            <Card
+              title={<span><FireOutlined style={{ color: 'orange' }} /> Most Used Item</span>}
+              bordered={false}
+              onClick={() => handleCardClick('mostUsed')}
+              hoverable
+              style={{ backgroundColor: activeCard === 'mostUsed' ? '#fff5e6' : 'white', height: '100%' }}
+            >
+              {loading ? (
+                <Skeleton active>
+                  <Skeleton.Input style={{ width: 200 }} active size="small" />
+                  <Skeleton.Button style={{ width: 100 }} active size="small" />
+                </Skeleton>
+              ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>{mostUsedItem?.description}</span>
                   <Statistic
@@ -236,8 +245,8 @@ const Dashboard = ({ itemSuggestions }) => {
                     suffix="units"
                   />
                 </div>
-              </Card>
-            )}
+              )}
+            </Card>
           </motion.div>
         </Col>
         <Col span={6}>
@@ -249,53 +258,11 @@ const Dashboard = ({ itemSuggestions }) => {
             whileTap="active"
             style={{ height: '100%' }}
           >
-            {loading ? (
-              <Skeleton active />
-            ) : (
-              <Card
-                title={
-                  <motion.div
-                    initial={false}
-                    animate={isSearching ? { height: 'auto' } : { height: 0 }}
-                  >
-                    <AutoComplete
-                      style={{ width: '100%' }}
-                      options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
-                      onSelect={(value, option) => handleQuickSearch(value)}
-                      onChange={(value) => handleQuickSearch(value)}
-                      value={searchTerm}
-                      filterOption={filterOptions}
-                    >
-                      <Input
-                        placeholder="Enter Item ID or Description"
-                        suffix={<SearchOutlined />}
-                        ref={quickSearchRef}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </AutoComplete>
-                  </motion.div>
-                }
-                extra={
-                  <motion.div
-                    initial={false}
-                    animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
-                  >
-                    Quick Stock Check
-                  </motion.div>
-                }
-                bordered={false}
-                onClick={() => handleCardClick('quickStock')}
-                hoverable
-                style={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  transition: 'filter 0.3s ease'
-                }}
-              >
+            <Card
+              title={
                 <motion.div
                   initial={false}
-                  animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
+                  animate={isSearching ? { height: 'auto' } : { height: 0 }}
                 >
                   <AutoComplete
                     style={{ width: '100%' }}
@@ -313,15 +280,53 @@ const Dashboard = ({ itemSuggestions }) => {
                     />
                   </AutoComplete>
                 </motion.div>
-                {quickSearchResult && (
-                  <Statistic
-                    title={`${quickSearchResult.itemid} - ${quickSearchResult.description}`}
-                    value={calculateAvailableStock(quickSearchResult.history)}
-                    suffix="units"
+              }
+              extra={
+                <motion.div
+                  initial={false}
+                  animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
+                >
+                  Quick Stock Check
+                </motion.div>
+              }
+              bordered={false}
+              onClick={() => handleCardClick('quickStock')}
+              hoverable
+              style={{
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'filter 0.3s ease'
+              }}
+            >
+              <motion.div
+                initial={false}
+                animate={isSearching ? { opacity: 0, height: 0 } : { opacity: 1, height: 'auto' }}
+              >
+                <AutoComplete
+                  style={{ width: '100%' }}
+                  options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
+                  onSelect={(value, option) => handleQuickSearch(value)}
+                  onChange={(value) => handleQuickSearch(value)}
+                  value={searchTerm}
+                  filterOption={filterOptions}
+                >
+                  <Input
+                    placeholder="Enter Item ID or Description"
+                    suffix={<SearchOutlined />}
+                    ref={quickSearchRef}
+                    onClick={(e) => e.stopPropagation()}
                   />
-                )}
-              </Card>
-            )}
+                </AutoComplete>
+              </motion.div>
+              {quickSearchResult && (
+                <Statistic
+                  title={`${quickSearchResult.itemid} - ${quickSearchResult.description}`}
+                  value={calculateAvailableStock(quickSearchResult.history)}
+                  suffix="units"
+                />
+              )}
+            </Card>
           </motion.div>
         </Col>
       </Row>
