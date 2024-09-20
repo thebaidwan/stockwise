@@ -117,8 +117,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                                 colors={{ scheme: 'nivo' }}
                                 fillOpacity={0.25}
                                 blendMode="multiply"
-                                animate={true}
-                                motionConfig="wobbly"
+                                animate={false}
                                 isInteractive={true}
                                 legends={[
                                     {
