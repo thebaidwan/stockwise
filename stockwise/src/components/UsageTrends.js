@@ -7,15 +7,21 @@ import moment from 'moment';
 const { Option } = Select;
 
 const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
-    const [selectedItems, setSelectedItems] = useState([mostUsedItem?.itemid || '']);
+    const [selectedItems, setSelectedItems] = useState([]);
     const [usageData, setUsageData] = useState([]);
     const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
-        if (loading || !mostUsedItem) return;
+        if (!loading && mostUsedItem) {
+            setSelectedItems([mostUsedItem.itemid]);
+        }
+    }, [loading, mostUsedItem]);
 
-        fetchUsageData();
-    }, [loading, mostUsedItem, selectedItems]);
+    useEffect(() => {
+        if (!loading && selectedItems.length > 0) {
+            fetchUsageData();
+        }
+    }, [loading, selectedItems]);
 
     const fetchUsageData = async () => {
         try {
@@ -30,7 +36,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
         if (usageData.length > 0 && selectedItems.length > 0) {
             const processedData = processUsageData();
             setChartData(processedData);
-        } else if (selectedItems.length > 0) {
+        } else {
             setChartData([]);
         }
     }, [usageData, selectedItems]);
@@ -72,7 +78,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
     return (
         <Card title="Usage Trends" style={{ marginBottom: 24 }}>
             {loading ? (
-                <Spin spinning={loading}>Loading...</Spin>
+                <Spin spinning={loading}></Spin>
             ) : (
                 <>
                     <Select
@@ -80,7 +86,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                         style={{ width: '100%', marginBottom: 16 }}
                         placeholder="Select items to compare"
                         onChange={handleItemSelect}
-                        defaultValue={[mostUsedItem.itemid]}
+                        value={selectedItems}
                         options={itemSuggestions.map(item => ({
                             label: `${item.itemid} - ${item.description}`,
                             value: item.itemid
