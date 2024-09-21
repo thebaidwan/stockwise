@@ -4,8 +4,6 @@ import { ResponsiveRadar } from '@nivo/radar';
 import axios from 'axios';
 import moment from 'moment';
 
-const { Option } = Select;
-
 const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [usageData, setUsageData] = useState([]);
@@ -74,14 +72,11 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
 
     const handleItemSelect = (selectedItems) => {
         setSelectedItems(selectedItems);
-    };
-
-    const handleLegendClick = (item) => {
-        setHighlightedItem(item === highlightedItem ? null : item);
-    };
-
-    const handleChartClick = () => {
         setHighlightedItem(null);
+    };
+
+    const handleLegendClick = (itemId) => {
+        setHighlightedItem(itemId === highlightedItem ? null : itemId);
     };
 
     const emptyChartData = [
@@ -100,14 +95,21 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
     ];
 
     const expandedColors = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', 
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
         '#3EC1D3', '#F85F73', '#55E6C1', '#F7D794', '#82589F'
     ];
 
-    const colors = ({ key }) =>
-        highlightedItem && key !== highlightedItem
-            ? '#e0e0e0'
-            : expandedColors[selectedItems.indexOf(key) % expandedColors.length];
+    useEffect(() => {
+    }, [selectedItems, highlightedItem]);
+
+    const colors = ({ key }) => {
+        if (highlightedItem) {
+            return key === highlightedItem
+                ? expandedColors[selectedItems.indexOf(key) % expandedColors.length]
+                : '#e0e0e0';
+        }
+        return expandedColors[selectedItems.indexOf(key) % expandedColors.length];
+    };
 
     return (
         <Card title="Usage Trends" style={{ marginBottom: 24 }}>
@@ -126,7 +128,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                             value: item.itemid
                         }))}
                     />
-                    <div style={{ height: 400 }} onClick={handleChartClick}>
+                    <div style={{ height: 400 }}>
                         <ResponsiveRadar
                             data={selectedItems.length === 0 ? emptyChartData : chartData}
                             keys={selectedItems.length === 0 ? ['empty'] : selectedItems}
@@ -171,7 +173,11 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                                             }
                                         }
                                     ],
-                                    onClick: handleLegendClick
+                                    onClick: (legend) => handleLegendClick(legend.id),
+                                    data: selectedItems.map(item => ({
+                                        id: item,
+                                        label: item
+                                    }))
                                 }
                             ]}
                         />
