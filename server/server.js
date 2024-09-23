@@ -11,8 +11,10 @@ const cookieParser = require('cookie-parser');
 const { ObjectId } = mongoose.Types;
 const moment = require('moment-timezone'); 
 
+require('dotenv').config();
+
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 3000;
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -20,7 +22,7 @@ const { body, validationResult } = require('express-validator');
 
 app.use(cors());
 
-mongoose.connect('mongodb+srv://draftinggurinder:znALpPy6h87gajxT@cluster0.mexrprl.mongodb.net/stockwise?retryWrites=true&w=majority', {
+mongoose.connect(process.env.MONGODB_URI, {
 })
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('Could not connect to MongoDB Atlas', err));
