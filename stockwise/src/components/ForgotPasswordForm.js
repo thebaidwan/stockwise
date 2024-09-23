@@ -62,7 +62,7 @@ const ForgotPasswordForm = () => {
         setError('Passwords do not match');
         return;
       }
-      const response = await axios.post($`{process.env.REACT_APP_API_URL}/reset-password`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/reset-password`, {
         userid: userData.userid,
         newPassword: values.newPassword,
       });
