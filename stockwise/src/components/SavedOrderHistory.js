@@ -28,7 +28,7 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/order-history');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/order-history`);
       const data = await response.json();
       setOrders(data);
       setFilteredOrders(data);
@@ -100,7 +100,7 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
   const executeDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/order-history/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/order-history/${id}`, { method: 'DELETE' });
       if (response.ok) {
         setOrders(prevOrders => prevOrders.filter(order => order._id !== id));
         setFilteredOrders(prevOrders => prevOrders.filter(order => order._id !== id));
@@ -121,7 +121,7 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
       setLoading(true);
 
       if (editOrder) {
-        const response = await fetch(`http://localhost:4000/order-history/${editOrder._id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/order-history/${editOrder._id}`, {
           method: 'PUT',
           body: JSON.stringify(values),
           headers: { 'Content-Type': 'application/json', 'current-user': currentUser }

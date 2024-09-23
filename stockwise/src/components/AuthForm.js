@@ -31,7 +31,7 @@ const AuthForm = ({ onSignIn, onSignup }) => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:4000/signin', { useridOrEmail: values.useridOrEmail, password: values.password, rememberMe: values.rememberMe });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/signin`, { useridOrEmail: values.useridOrEmail, password: values.password, rememberMe: values.rememberMe });
       if (response.status === 200) {
         const user = { userid: response.data.userid, email: response.data.email };
         setCurrentUser(user);
@@ -57,7 +57,7 @@ const AuthForm = ({ onSignIn, onSignup }) => {
         setError('Passwords do not match');
         return;
       }
-      const response = await axios.post('http://localhost:4000/signup', { userid: values.userid, email: values.email, password: values.password, securityQuestion: values.securityQuestion, securityAnswer: values.securityAnswer });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/signup`, { userid: values.userid, email: values.email, password: values.password, securityQuestion: values.securityQuestion, securityAnswer: values.securityAnswer });
       if (response.status === 201) {
         onSignup(true);
         window.location.reload();

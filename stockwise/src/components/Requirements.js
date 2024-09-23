@@ -41,7 +41,7 @@ function Requirements({ itemSuggestions }) {
         }))
       };
 
-      const response = await fetch('http://localhost:4000/requirements', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/requirements`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

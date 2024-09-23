@@ -18,7 +18,7 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
 
   useEffect(() => {
     const fetchRequirements = async () => {
-      const response = await axios.get('http://localhost:4000/requirements');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/requirements`);
       setRequirements(response.data);
       setFilteredRequirements(response.data);
     };

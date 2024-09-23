@@ -28,7 +28,7 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
   const fetchUses = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/use-history');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/use-history`);
       const data = await response.json();
       setUses(data);
       setFilteredUses(data);
@@ -100,7 +100,7 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
   const executeDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/use-history/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/use-history/${id}`, { method: 'DELETE' });
       if (response.ok) {
         setUses(prevUses => prevUses.filter(use => use._id !== id));
         setFilteredUses(prevUses => prevUses.filter(use => use._id !== id));
@@ -121,7 +121,7 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
       setLoading(true);
 
       if (editUse) {
-        const response = await fetch(`http://localhost:4000/use-history/${editUse._id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/use-history/${editUse._id}`, {
           method: 'PUT',
           body: JSON.stringify(values),
           headers: { 'Content-Type': 'application/json', 'current-user': currentUser }

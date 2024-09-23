@@ -23,7 +23,7 @@ const ForgotPasswordForm = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:4000/identify-user', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/identify-user`, {
         userIdOrEmail: values.userIdOrEmail,
       });
       setUserData(response.data.user);
@@ -40,7 +40,7 @@ const ForgotPasswordForm = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:4000/verify-security-answer', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/verify-security-answer`, {
         userid: userData.userid,
         securityAnswer: values.securityAnswer,
       });
@@ -62,7 +62,7 @@ const ForgotPasswordForm = () => {
         setError('Passwords do not match');
         return;
       }
-      const response = await axios.post('http://localhost:4000/reset-password', {
+      const response = await axios.post($`{process.env.REACT_APP_API_URL}/reset-password`, {
         userid: userData.userid,
         newPassword: values.newPassword,
       });

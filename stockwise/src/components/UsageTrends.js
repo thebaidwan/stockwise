@@ -24,7 +24,7 @@ const UsageTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
 
     const fetchUsageData = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/use-history');
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/use-history`);
             setUsageData(response.data || []);
         } catch (error) {
             console.error('Error fetching usage data:', error);

@@ -26,7 +26,7 @@ function SavedRequirements({ refresh, itemSuggestions }) {
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/requirements');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/requirements`);
       const data = await response.json();
       setRequirements(data);
       setFilteredRequirements(data);
@@ -107,7 +107,7 @@ function SavedRequirements({ refresh, itemSuggestions }) {
   const executeDelete = async (id) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/requirements/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/requirements/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -132,7 +132,7 @@ function SavedRequirements({ refresh, itemSuggestions }) {
 
       if (editRequirement) {
 
-        const response = await fetch(`http://localhost:4000/requirements/${editRequirement._id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/requirements/${editRequirement._id}`, {
           method: 'PUT',
           body: JSON.stringify(values),
           headers: { 'Content-Type': 'application/json' }
@@ -143,7 +143,7 @@ function SavedRequirements({ refresh, itemSuggestions }) {
         setFilteredRequirements(prevRequirements => prevRequirements.map(req => req._id === updatedRequirement._id ? updatedRequirement : req));
       } else {
 
-        const response = await fetch('http://localhost:4000/requirements', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/requirements`, {
           method: 'POST',
           body: JSON.stringify(values),
           headers: { 'Content-Type': 'application/json' }

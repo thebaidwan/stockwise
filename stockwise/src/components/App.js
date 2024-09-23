@@ -29,7 +29,7 @@ function App() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/items');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/items`);
         setItemSuggestions(response.data);
         setLoading(false);
       } catch (error) {
@@ -105,7 +105,7 @@ function App() {
     setTimeout(async () => {
       if (!isMounted) return;
       try {
-        await axios.post('http://localhost:4000/logout');
+        await axios.post(`${process.env.REACT_APP_API_URL}/logout`);
         localStorage.removeItem('signedIn');
         localStorage.removeItem('user');
         setSignedIn(false);

@@ -16,7 +16,7 @@ const UserMenu = ({ isModalVisible, handleCancel, handleLogout }) => {
   const handleSave = async () => {
     try {
       if (newUsername !== currentUser.userid) {
-        const response = await axios.put('http://localhost:4000/update-username', { userid: currentUser.userid, newUsername });
+        const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-username`, { userid: currentUser.userid, newUsername });
         if (response.data.success) {
           setCurrentUser({ ...currentUser, userid: newUsername });
           message.success('Username updated successfully');
@@ -24,7 +24,7 @@ const UserMenu = ({ isModalVisible, handleCancel, handleLogout }) => {
       }
 
       if (newEmail !== currentUser.email) {
-        const response = await axios.put('http://localhost:4000/update-email', { userid: currentUser.userid, newEmail });
+        const response = await axios.put(`${process.env.REACT_APP_API_URL}/update-email`, { userid: currentUser.userid, newEmail });
         if (response.data.success) {
           setCurrentUser({ ...currentUser, email: newEmail });
           message.success('Email updated successfully');
@@ -32,7 +32,7 @@ const UserMenu = ({ isModalVisible, handleCancel, handleLogout }) => {
       }
 
       if (newPassword) {
-        const response = await axios.put('http://localhost:4000/change-password', { userid: currentUser.userid, currentPassword, newPassword });
+        const response = await axios.put(`${process.env.REACT_APP_API_URL}/change-password`, { userid: currentUser.userid, currentPassword, newPassword });
         if (response.data.message === 'Password changed successfully') {
           message.success('Password updated successfully');
         }
@@ -57,7 +57,7 @@ const UserMenu = ({ isModalVisible, handleCancel, handleLogout }) => {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete('http://localhost:4000/delete-account', { data: { userid: currentUser.userid } });
+      const response = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-account`, { data: { userid: currentUser.userid } });
       if (response.data.message === 'Account deleted successfully') {
         setCurrentUser(null);
         message.success('Account deleted successfully');
@@ -75,7 +75,7 @@ const UserMenu = ({ isModalVisible, handleCancel, handleLogout }) => {
     }
 
     try {
-      const response = await axios.get('http://localhost:4000/backup-and-reset', {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/backup-and-reset`, {
         responseType: 'blob',
       });
 

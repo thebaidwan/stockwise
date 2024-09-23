@@ -44,7 +44,7 @@ function OrderHistory({ itemSuggestions }) {
   
       const userId = currentUser.userid;
   
-      const response = await fetch('http://localhost:4000/order-history', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/order-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

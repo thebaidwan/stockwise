@@ -45,7 +45,7 @@ const Dashboard = ({ itemSuggestions }) => {
   };
 
   const fetchStockAlerts = async () => {
-    const response = await axios.get("http://localhost:4000/items");
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/items`);
     const lowStock = response.data.filter(item => calculateAvailableStock(item.history) < item.minlevel);
     const highStock = response.data.filter(item => calculateAvailableStock(item.history) > item.maxlevel);
     setStockAlertsLow(lowStock);
@@ -54,7 +54,7 @@ const Dashboard = ({ itemSuggestions }) => {
   };
 
   const fetchMostUsedItem = async () => {
-    const response = await axios.get("http://localhost:4000/items");
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/items`);
     const itemsWithUsage = response.data.map(item => {
       const totalUsed = item.history.reduce((total, entry) => {
         const match = entry.match(/(-\d+)\s+Used/);

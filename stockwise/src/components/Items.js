@@ -55,7 +55,7 @@ function Items() {
 
   const fetchItems = () => {
     setLoading(true);
-    fetch('http://localhost:4000/items')
+    fetch(`${process.env.REACT_APP_API_URL}/items`)
       .then(response => response.json())
       .then(data => {
         const itemsWithStock = data.map(item => ({
@@ -149,7 +149,7 @@ function Items() {
   
       if (Object.keys(updates).length > 0) {
         const updatedItem = { ...item, ...updates };
-        return fetch(`http://localhost:4000/items/${item.itemid}`, {
+        return fetch(`${process.env.REACT_APP_API_URL}/items/${item.itemid}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ function Items() {
       okType: 'danger',
       cancelText: 'No',
       onOk() {
-        fetch(`http://localhost:4000/items/${itemId}`, {
+        fetch(`${process.env.REACT_APP_API_URL}/items/${itemId}`, {
           method: 'DELETE',
         })
           .then(() => {
@@ -221,7 +221,7 @@ function Items() {
 
   const handleSubmit = (values) => {
     setLoading(true);
-    const url = editItem ? `http://localhost:4000/items/${editItem.itemid}` : 'http://localhost:4000/items';
+    const url = editItem ? `${process.env.REACT_APP_API_URL}/items/${editItem.itemid}` : `${process.env.REACT_APP_API_URL}/items`;
     const method = editItem ? 'PUT' : 'POST';
 
     const body = editItem ? values : {
@@ -272,7 +272,7 @@ function Items() {
   };
 
   const fetchItemHistory = (itemId) => {
-    fetch(`http://localhost:4000/items/${itemId}/history`)
+    fetch(`${process.env.REACT_APP_API_URL}/${itemId}/history`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

@@ -24,7 +24,7 @@ const OrderTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
 
     const fetchOrderData = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/order-history');
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/order-history`);
             setOrderData(response.data || []);
         } catch (error) {
             console.error('Error fetching order data:', error);
