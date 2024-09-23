@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import UpcomingRequirements from './UpcomingRequirements';
 import UsageTrends from './UsageTrends';
-//import OrderTrends from './OrderTrends';
+import OrderTrends from './OrderTrends';
 
 const Dashboard = ({ itemSuggestions }) => {
   const [stockAlertsLow, setStockAlertsLow] = useState([]);
@@ -339,37 +339,30 @@ const Dashboard = ({ itemSuggestions }) => {
       </div>
 
       <Row gutter={16}>
-          <Col span={24}>
-            <UpcomingRequirements
-              loading={loading}
-              itemSuggestions={itemSuggestions}
-              calculateAvailableStock={calculateAvailableStock}
-            />
-          </Col>
-        </Row>
-        <Row gutter={16} style={{ marginTop: 24 }}>
-          <Col span={12}>
-            <UsageTrends
-              loading={loading}
-              itemSuggestions={itemSuggestions}
-              mostUsedItem={mostUsedItem}
-            />
-          </Col>
-        </Row>
-
-      {
-        /*      
-        <Row gutter={16} style={{ marginTop: 24 }}>
-          <Col span={24}>
-            <OrderTrends 
+        <Col span={24}>
+          <UpcomingRequirements
+            loading={loading}
+            itemSuggestions={itemSuggestions}
+            calculateAvailableStock={calculateAvailableStock}
+          />
+        </Col>
+      </Row>
+      <Row gutter={16} style={{ marginTop: 24 }}>
+        <Col span={12}>
+          <UsageTrends
             loading={loading}
             itemSuggestions={itemSuggestions}
             mostUsedItem={mostUsedItem}
-            />
-          </Col>
-        </Row>
-        */
-      }
+          />
+        </Col>
+        <Col span={12}>
+          <OrderTrends
+            loading={loading}
+            itemSuggestions={itemSuggestions}
+            mostUsedItem={mostUsedItem}
+          />
+        </Col>
+      </Row>
     </div>
   );
 };
