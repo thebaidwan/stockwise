@@ -272,7 +272,7 @@ function Items() {
   };
 
   const fetchItemHistory = (itemId) => {
-    fetch(`${process.env.REACT_APP_API_URL}/${itemId}/history`)
+    fetch(`${process.env.REACT_APP_API_URL}/items/${itemId}/history`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
