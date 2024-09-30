@@ -1,6 +1,6 @@
 {
   "name": "stockwise",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "private": true,
   "dependencies": {
     "@ant-design/charts": "^2.2.1",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Select, Skeleton } from 'antd';
+import { Card, Select, Skeleton, Tooltip } from 'antd';
 import { ResponsiveRadar } from '@nivo/radar';
 import axios from 'axios';
 import moment from 'moment';
@@ -124,8 +124,17 @@ const OrderTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
                         onChange={handleItemSelect}
                         value={selectedItems}
                         options={itemSuggestions.map(item => ({
-                            label: `${item.itemid} - ${item.description}`,
-                            value: item.itemid
+                            value: item.itemid,
+                            label: (
+                                <Tooltip title={item.comment ? item.comment : ''}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span>{`${item.itemid} - ${item.description}`}</span>
+                                        <span style={{ fontStyle: 'italic', textAlign: 'right' }}>
+                                            {` ${item.material}`}
+                                        </span>
+                                    </div>
+                                </Tooltip>
+                            ),
                         }))}
                     />
                     <div style={{ height: 400 }}>

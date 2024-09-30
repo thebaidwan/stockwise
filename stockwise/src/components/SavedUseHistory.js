@@ -20,7 +20,6 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
   const [form] = Form.useForm();
   const [sortUse, setSortUse] = useState('desc');
   const [showEditButtons, setShowEditButtons] = useState(false);
-  const [activePanels, setActivePanels] = useState([]);
   const { items, setItems, handleInputChange } = useItemChange(itemSuggestions);
   const prevUsesRef = useRef([]);
   const { currentUser } = useUser();
@@ -145,10 +144,6 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
     setEditUse(null);
   };
 
-  const handlePanelChange = (key) => {
-    setActivePanels(key);
-  };
-
   const paginatedUses = Array.isArray(filteredUses)
     ? filteredUses.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : [];
@@ -210,8 +205,6 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
                       classNames="page-change"
                     >
                       <Collapse
-                        activeKey={activePanels}
-                        onChange={handlePanelChange}
                         bordered={true}
                         style={{ marginBottom: '10px' }}
                       >
@@ -226,9 +219,23 @@ function SavedUseHistory({ refresh, itemSuggestions }) {
                           extra={
                             showEditButtons && (
                               <>
-                                <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(use)} />
+                                <Button
+                                  type="link"
+                                  icon={<EditOutlined />}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEdit(use);
+                                  }}
+                                />
                                 <Tooltip title="Delete">
-                                  <Button type="link" icon={<DeleteOutlined style={{ color: 'red' }} />} onClick={() => handleDeleteUseHistory(use._id)} />
+                                  <Button
+                                    type="link"
+                                    icon={<DeleteOutlined style={{ color: 'red' }} />}
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeleteUseHistory(use._id);
+                                    }}
+                                  />
                                 </Tooltip>
                               </>
                             )

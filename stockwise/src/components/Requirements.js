@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '@fontsource/open-sans';
-import { Card, Form, Input, Button, DatePicker, Row, Col, Select, message, Skeleton } from 'antd';
+import { Card, Form, Input, Button, DatePicker, Row, Col, Select, message, Skeleton, Tooltip } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import SavedRequirements from './SavedRequirements';
 import { useItemChange } from './useItemChange';
@@ -175,7 +175,12 @@ function Requirements({ itemSuggestions }) {
                       >
                         {itemSuggestions.map(option => (
                           <Option key={option.description} value={option.description}>
-                            {option.description}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Tooltip title={option.comment || ''} mouseEnterDelay={0.5}>
+                                <span>{option.description}</span>
+                              </Tooltip>
+                              <span style={{ fontStyle: 'italic', textAlign: 'right' }}>{option.material}</span>
+                            </div>
                           </Option>
                         ))}
                       </Select>
@@ -184,19 +189,34 @@ function Requirements({ itemSuggestions }) {
                   <Col span={6}>
                     <Form.Item
                       name={['items', index, 'quantityNeeded']}
-                      rules={[{ required: true, message: 'Quantity is required' }]}
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Quantity is required'
+                        },
+                        {
+                          validator: (_, value) => {
+                            if (value && value <= 0) {
+                              return Promise.reject(new Error('Quantity must be a positive number'));
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
                       style={{ marginBottom: 0 }}
                     >
                       <Input
                         type="number"
                         placeholder="Qty"
                         value={item.quantityNeeded}
-                        min={1}
+                        min={0.01}
+                        step={0.01}
                         onChange={(e) => handleInputChange(e.target.value, 'quantityNeeded', index, form)}
                         style={{ width: '100%' }}
                       />
                     </Form.Item>
                   </Col>
+
                   <Col span={1} style={{ textAlign: 'center' }}>
                     {index !== 0 && (
                       <Button

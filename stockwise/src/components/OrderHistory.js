@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '@fontsource/open-sans';
-import { Card, Form, Input, Button, DatePicker, Row, Col, Select, message, Skeleton } from 'antd';
+import { Card, Form, Input, Button, DatePicker, Row, Col, Select, message, Skeleton, Tooltip } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useItemChange } from './useItemChange';
 import SavedOrderHistory from './SavedOrderHistory';
@@ -41,9 +41,9 @@ function OrderHistory({ itemSuggestions }) {
           quantityReceived: item.quantityReceived
         }))
       };
-  
+
       const userId = currentUser.userid;
-  
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/order-history`, {
         method: 'POST',
         headers: {
@@ -52,11 +52,11 @@ function OrderHistory({ itemSuggestions }) {
         },
         body: JSON.stringify(orderData),
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
+
       message.success('PO saved successfully');
       form.resetFields();
       setItems([{ itemId: '', description: '', quantityReceived: '' }]);
@@ -155,7 +155,12 @@ function OrderHistory({ itemSuggestions }) {
                       >
                         {itemSuggestions.map(option => (
                           <Option key={option.description} value={option.description}>
-                            {option.description}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Tooltip title={option.comment || ''} mouseEnterDelay={0.5}>
+                                <span>{option.description}</span>
+                              </Tooltip>
+                              <span style={{ fontStyle: 'italic', textAlign: 'right' }}>{option.material}</span>
+                            </div>
                           </Option>
                         ))}
                       </Select>
@@ -218,7 +223,7 @@ function OrderHistory({ itemSuggestions }) {
           </Card>
 
           <SavedOrderHistory refresh={refresh} itemSuggestions={itemSuggestions} />
-          
+
         </>
       )}
     </div>

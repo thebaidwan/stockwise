@@ -40,6 +40,8 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
               neededBy: neededByDate,
               jobs: new Set(),
               availableStock: calculateAvailableStock(foundItem?.history || []),
+              material: foundItem?.material || '',
+              comment: foundItem?.comment || '',
             };
           }
           aggregated[item.itemId].quantityNeeded += item.quantityNeeded;
@@ -56,6 +58,8 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
       neededBy: data.neededBy.format('YYYY-MM-DD'),
       jobs: Array.from(data.jobs).join(', '),
       availableStock: data.availableStock,
+      material: data.material,
+      comment: data.comment,
     }));
   };
 
@@ -73,12 +77,42 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   };
 
   const columns = [
-    { title: 'Item ID', dataIndex: 'itemId', key: 'itemId' },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { title: 'Quantity Required', dataIndex: 'quantityNeeded', key: 'quantityNeeded' },
-    { title: 'Available Stock', dataIndex: 'availableStock', key: 'availableStock' },
-    { title: 'Earliest Required Date', dataIndex: 'neededBy', key: 'neededBy' },
-    { title: 'Jobs', dataIndex: 'jobs', key: 'jobs' },
+    { 
+      title: 'Item ID', 
+      dataIndex: 'itemId', 
+      key: 'itemId',
+      sorter: (a, b) => a.itemId.localeCompare(b.itemId),
+    },
+    { 
+      title: 'Description', 
+      dataIndex: 'description', 
+      key: 'description',
+      sorter: (a, b) => a.description.localeCompare(b.description),
+    },
+    { 
+      title: 'Quantity Required', 
+      dataIndex: 'quantityNeeded', 
+      key: 'quantityNeeded',
+      sorter: (a, b) => a.quantityNeeded - b.quantityNeeded,
+    },
+    { 
+      title: 'Available Stock', 
+      dataIndex: 'availableStock', 
+      key: 'availableStock',
+      sorter: (a, b) => a.availableStock - b.availableStock,
+    },
+    { 
+      title: 'Earliest Required Date', 
+      dataIndex: 'neededBy', 
+      key: 'neededBy',
+      sorter: (a, b) => moment(a.neededBy).unix() - moment(b.neededBy).unix(),
+    },
+    { 
+      title: 'Jobs', 
+      dataIndex: 'jobs', 
+      key: 'jobs',
+      sorter: (a, b) => a.jobs.localeCompare(b.jobs),
+    },
   ];
 
   const aggregatedData = aggregateRequirements(filteredRequirements);
@@ -122,7 +156,14 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
           >
             {itemSuggestions.map(item => (
               <Option key={item.itemid} value={item.itemid}>
-                {`${item.itemid} - ${item.description}`}
+                <Tooltip title={item.comment ? item.comment : ''}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{`${item.itemid} - ${item.description}`}</span>
+                    <span style={{ fontStyle: 'italic', textAlign: 'right' }}>
+                      {` ${item.material}`}
+                    </span>
+                  </div>
+                </Tooltip>
               </Option>
             ))}
           </Select>
@@ -154,6 +195,12 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
             }}
             pagination={false}
             bordered
+            onRow={(record) => ({
+              onMouseEnter: () => {
+              },
+              onMouseLeave: () => {
+              },
+            })}
           />
           <Pagination
             current={currentPage}

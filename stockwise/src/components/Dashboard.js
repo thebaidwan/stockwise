@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Table, Row, Col, Input, Statistic, Pagination, Skeleton, AutoComplete } from 'antd';
+import { Card, Table, Row, Col, Input, Statistic, Pagination, Skeleton, AutoComplete, Select, Tooltip } from 'antd';
 import { AlertOutlined, SearchOutlined, FireOutlined } from '@ant-design/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -20,9 +20,39 @@ const Dashboard = ({ itemSuggestions }) => {
   const [isSearching, setIsSearching] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const quickSearchRef = useRef(null);
+
+  const [sortedInfo, setSortedInfo] = useState({});
+
+  const handleChange = (pagination, filters, sorter) => {
+    setSortedInfo(sorter);
+  };
+
+  const filterOptions = (inputValue, option) => {
+    const lowerCaseInput = inputValue.toLowerCase();
+    const itemId = option.value.toLowerCase();
+    
+    let description = '';
+    let material = '';
+
+    if (option.label && typeof option.label === 'object') {
+      const labelChildren = option.label.props && option.label.props.children;
+      if (Array.isArray(labelChildren)) {
+        description = labelChildren[0] && labelChildren[0].props && labelChildren[0].props.children && labelChildren[0].props.children[0] || '';
+        material = labelChildren[1] && labelChildren[1].props && labelChildren[1].props.children || '';
+      } else if (typeof labelChildren === 'string') {
+        description = labelChildren;
+      }
+    } else if (typeof option.label === 'string') {
+      description = option.label;
+    }
+
+    return itemId.includes(lowerCaseInput) || 
+           description.toLowerCase().includes(lowerCaseInput) || 
+           material.toLowerCase().includes(lowerCaseInput);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,17 +98,120 @@ const Dashboard = ({ itemSuggestions }) => {
   };
 
   const stockAlertColumns = [
-    { title: "Item ID", dataIndex: "itemid", key: "itemid" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Available Stock", render: (_, record) => calculateAvailableStock(record.history), key: "availableStock" },
-    { title: "Limit", render: (_, record) => calculateAvailableStock(record.history) < record.minlevel ? record.minlevel : record.maxlevel, key: "limit" },
+    {
+      title: "Item ID",
+      dataIndex: "itemid",
+      key: "itemid",
+      sorter: (a, b) => a.itemid.localeCompare(b.itemid),
+      sortOrder: sortedInfo.columnKey === 'itemid' && sortedInfo.order,
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
+      sortOrder: sortedInfo.columnKey === 'description' && sortedInfo.order,
+    },
+    {
+      title: "Available Stock",
+      key: "availableStock",
+      sorter: (a, b) => calculateAvailableStock(a.history) - calculateAvailableStock(b.history),
+      sortOrder: sortedInfo.columnKey === 'availableStock' && sortedInfo.order,
+      render: (_, record) => calculateAvailableStock(record.history),
+    },
+    {
+      title: "Limit",
+      key: "limit",
+      sorter: (a, b) => {
+        const limitA = calculateAvailableStock(a.history) < a.minlevel ? a.minlevel : a.maxlevel;
+        const limitB = calculateAvailableStock(b.history) < b.minlevel ? b.minlevel : b.maxlevel;
+        return limitA - limitB;
+      },
+      sortOrder: sortedInfo.columnKey === 'limit' && sortedInfo.order,
+      render: (_, record) => calculateAvailableStock(record.history) < record.minlevel ? record.minlevel : record.maxlevel,
+    },
   ];
 
   const mostUsedColumns = [
-    { title: "Item ID", dataIndex: "itemid", key: "itemid" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    { title: "Total Used", dataIndex: "totalUsed", key: "totalUsed" },
+    {
+      title: "Item ID",
+      dataIndex: "itemid",
+      key: "itemid",
+      sorter: (a, b) => a.itemid.localeCompare(b.itemid),
+      sortOrder: sortedInfo.columnKey === 'itemid' && sortedInfo.order,
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
+      sortOrder: sortedInfo.columnKey === 'description' && sortedInfo.order,
+    },
+    {
+      title: "Total Used",
+      dataIndex: "totalUsed",
+      key: "totalUsed",
+      sorter: (a, b) => a.totalUsed - b.totalUsed,
+      sortOrder: sortedInfo.columnKey === 'totalUsed' && sortedInfo.order,
+    },
   ];
+
+  const renderTooltip = (record) => (
+    <div>
+      <p className="tooltip-label">Material: <span className="tooltip-value">{record.material}</span></p>
+      <p className="tooltip-label">Comment: <span className="tooltip-value">{record.comment || 'No comment available'}</span></p>
+    </div>
+  );
+
+  const renderPaginatedTable = (data, columns, visible) => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+
+    return (
+      <AnimatePresence>
+        {visible && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginTop: '20px', marginBottom: '40px', overflow: 'hidden' }}
+          >
+            <Table
+              dataSource={currentItems}
+              columns={columns.map(col => ({
+                ...col,
+                render: (text, record) => (
+                  <Tooltip title={renderTooltip(record)} placement="topLeft" overlayStyle={{ maxWidth: '300px' }}>
+                    <span>{col.render ? col.render(text, record) : text}</span>
+                  </Tooltip>
+                ),
+              }))}
+              rowKey="_id"
+              pagination={false}
+              onChange={handleChange}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+              <Select
+                value={itemsPerPage}
+                onChange={(value) => setItemsPerPage(value)}
+                options={[10, 20, 50, 100].map(size => ({ value: size, label: `${size}` }))}
+                style={{ width: '100px' }}
+              />
+              <Pagination
+                current={currentPage}
+                total={data.length}
+                pageSize={itemsPerPage}
+                onChange={(page) => setCurrentPage(page)}
+                showSizeChanger={false}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
 
   const handleQuickSearch = (value) => {
     setSearchTerm(value);
@@ -116,45 +249,6 @@ const Dashboard = ({ itemSuggestions }) => {
       boxShadow: 'none',
       borderRadius: '8px'
     }
-  };
-
-  const renderPaginatedTable = (data, columns, visible) => {
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-
-    return (
-      <AnimatePresence>
-        {visible && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ marginTop: '20px', marginBottom: '40px', overflow: 'hidden' }}
-          >
-            <Table
-              dataSource={currentItems}
-              columns={columns}
-              rowKey="_id"
-              pagination={false}
-            />
-            <Pagination
-              current={currentPage}
-              total={data.length}
-              pageSize={itemsPerPage}
-              onChange={(page) => setCurrentPage(page)}
-              style={{ marginTop: '16px', textAlign: 'right' }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  };
-
-  const filterOptions = (inputValue, option) => {
-    return option.value.toLowerCase().indexOf(inputValue.toLowerCase()) !== -1 ||
-      option.label.toLowerCase().indexOf(inputValue.toLowerCase()) !== -1;
   };
 
   const quickStockColumns = stockAlertColumns.filter(column => column.key !== 'totalUsed');
@@ -266,7 +360,15 @@ const Dashboard = ({ itemSuggestions }) => {
                 >
                   <AutoComplete
                     style={{ width: '100%' }}
-                    options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
+                    options={allItems.map(item => ({
+                      value: item.itemid,
+                      label: (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{`${item.itemid} - ${item.description}`}</span>
+                          <span style={{ fontStyle: 'italic', textAlign: 'right' }}>{` ${item.material}`}</span>
+                        </div>
+                      )
+                    }))}
                     onSelect={(value, option) => handleQuickSearch(value)}
                     onChange={(value) => handleQuickSearch(value)}
                     value={searchTerm}
@@ -305,7 +407,15 @@ const Dashboard = ({ itemSuggestions }) => {
               >
                 <AutoComplete
                   style={{ width: '100%' }}
-                  options={allItems.map(item => ({ value: item.itemid, label: `${item.itemid} - ${item.description}` }))}
+                  options={allItems.map(item => ({
+                    value: item.itemid,
+                    label: (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>{`${item.itemid} - ${item.description}`}</span>
+                        <span style={{ fontStyle: 'italic', textAlign: 'right' }}>{` ${item.material}`}</span>
+                      </div>
+                    )
+                  }))}
                   onSelect={(value, option) => handleQuickSearch(value)}
                   onChange={(value) => handleQuickSearch(value)}
                   value={searchTerm}

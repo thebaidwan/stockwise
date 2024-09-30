@@ -234,7 +234,11 @@ function SavedRequirements({ refresh, itemSuggestions }) {
                     timeout={500}
                     classNames={isRequirementAddedOrRemoved(requirement) ? "fade" : "page-change"}
                   >
-                    <Collapse key={requirement._id.$oid} bordered={true} style={{ marginBottom: '10px' }}>
+                    <Collapse
+                      key={requirement._id.$oid}
+                      bordered={true}
+                      style={{ marginBottom: '10px' }}
+                    >
                       <Panel
                         header={
                           <Row>
@@ -249,13 +253,19 @@ function SavedRequirements({ refresh, itemSuggestions }) {
                               <Button
                                 type="link"
                                 icon={<EditOutlined />}
-                                onClick={() => handleEdit(requirement)}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  handleEdit(requirement);
+                                }}
                               />
                               <Tooltip title="Delete">
                                 <Button
                                   type="link"
                                   icon={<DeleteOutlined style={{ color: 'red' }} />}
-                                  onClick={() => handleDelete(requirement._id)}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDelete(requirement._id);
+                                  }}
                                 />
                               </Tooltip>
                             </>

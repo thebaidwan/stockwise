@@ -12,3 +12,13 @@
   padding: 5px;
   font-size: 14px;
 }
+
+.tooltip-label {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.tooltip-value {
+  font-style: italic;
+  font-weight: 400;
+}

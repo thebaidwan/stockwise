@@ -42,9 +42,9 @@ function UseHistory({ itemSuggestions }) {
           quantityUsed: item.quantityUsed
         }))
       };
-  
+
       const userId = currentUser.userid;
-  
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/use-history`, {
         method: 'POST',
         headers: {
@@ -53,11 +53,11 @@ function UseHistory({ itemSuggestions }) {
         },
         body: JSON.stringify(useData),
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
+
       message.success('Use History saved successfully');
       form.resetFields();
       setItems([{ itemId: '', description: '', quantityUsed: '' }]);
@@ -171,7 +171,12 @@ function UseHistory({ itemSuggestions }) {
                       >
                         {itemSuggestions.map(option => (
                           <Option key={option.description} value={option.description}>
-                            {option.description}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Tooltip title={option.comment || ''} mouseEnterDelay={0.5}>
+                                <span>{option.description}</span>
+                              </Tooltip>
+                              <span style={{ fontStyle: 'italic', textAlign: 'right' }}>{option.material}</span>
+                            </div>
                           </Option>
                         ))}
                       </Select>
@@ -180,13 +185,25 @@ function UseHistory({ itemSuggestions }) {
                   <Col span={6}>
                     <Form.Item
                       name={['items', index, 'quantityUsed']}
-                      rules={[{ required: true, message: 'Quantity used is required' }]}
+                      rules={[
+                        { required: true, message: 'Quantity used is required' },
+                        {
+                          validator: (_, value) => {
+                            if (value && value <= 0) {
+                              return Promise.reject(new Error('Quantity must be a positive number'));
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
                       style={{ marginBottom: 0 }}
                     >
                       <Input
                         type="number"
                         placeholder="Qty"
                         value={item.quantityUsed}
+                        min={0.01}
+                        step={0.01}
                         onChange={(e) => handleInputChange(e.target.value, 'quantityUsed', index, form)}
                         style={{ width: '100%' }}
                       />

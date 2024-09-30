@@ -20,7 +20,6 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
   const [form] = Form.useForm();
   const [sortOrder, setSortOrder] = useState('desc');
   const [showEditButtons, setShowEditButtons] = useState(false);
-  const [activePanels, setActivePanels] = useState([]);
   const { items, setItems, handleInputChange } = useItemChange(itemSuggestions);
   const prevOrdersRef = useRef([]);
   const { currentUser } = useUser();
@@ -145,10 +144,6 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
     setEditOrder(null);
   };
 
-  const handlePanelChange = (key) => {
-    setActivePanels(key);
-  };
-
   const paginatedOrders = Array.isArray(filteredOrders)
     ? filteredOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : [];
@@ -206,8 +201,6 @@ function SavedOrderHistory({ refresh, itemSuggestions }) {
                       classNames="page-change"
                     >
                       <Collapse
-                        activeKey={activePanels}
-                        onChange={handlePanelChange}
                         bordered={true}
                         style={{ marginBottom: '10px' }}
                       >
