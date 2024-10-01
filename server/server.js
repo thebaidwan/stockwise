@@ -168,9 +168,9 @@ app.get('/items/download-pdf', async (req, res) => {
     const columnWidths = {
       itemId: 50,
       description: 150,
-      material: 50,
-      comment: 50,
-      blank: 162
+      material: 40,
+      comment: 60,
+      blank: 212
     };
     
     function truncateText(text, width) {
@@ -200,11 +200,9 @@ app.get('/items/download-pdf', async (req, res) => {
          .text(truncateText(item.comment, columnWidths.comment), commentX, y, { width: columnWidths.comment })
          .text('', blankX, y, { width: columnWidths.blank });
       
-      doc.rect(itemIdX - 2, y - 2, columnWidths.itemId + 4, 16).stroke();
-      doc.rect(descriptionX - 2, y - 2, columnWidths.description + 4, 16).stroke();
-      doc.rect(materialX - 2, y - 2, columnWidths.material + 4, 16).stroke();
-      doc.rect(commentX - 2, y - 2, columnWidths.comment + 4, 16).stroke();
-      doc.rect(blankX - 2, y - 2, columnWidths.blank + 4, 16).stroke();
+      doc.moveTo(itemIdX, y + 15)
+         .lineTo(562, y + 15)
+         .stroke();
       
       y += 20;
       
