@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Empty, Button, Table, Space, Modal, Form, Input, InputNumber, Spin, Pagination, Select, notification, Tooltip } from 'antd';
+import { Empty, Button, Table, Space, Modal, Form, Input, InputNumber, Spin, Pagination, Select, message, Tooltip } from 'antd';
 import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useUser } from './UserContext';
 
@@ -25,6 +25,7 @@ function Items() {
   const itemsPageSize = 10;
   const historyPageSize = 10;
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
     if (editItem) {
@@ -53,6 +54,15 @@ function Items() {
     }
   }, [editItem]);
 
+  useEffect(() => {
+    const filtered = items.filter(item =>
+      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.itemid.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredItems(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, items]);
+
   const fetchItems = () => {
     setLoading(true);
     fetch(`${process.env.REACT_APP_API_URL}/items`)
@@ -63,27 +73,21 @@ function Items() {
           availablestock: calculateAvailableStock(item.history),
         }));
         setItems(itemsWithStock);
+        setFilteredItems(itemsWithStock);
         setOriginalItems(JSON.parse(JSON.stringify(itemsWithStock)));
         setLoading(false);
-        notification.success({
-          message: 'Items Fetched',
-          description: 'Items have been successfully fetched.',
-        });
+        message.success('Items have been successfully fetched.');
       })
       .catch(error => {
-        console.error('Error:', error);
         setLoading(false);
-        notification.error({
-          message: 'Fetch Error',
-          description: 'Failed to fetch items. Please try again.',
-        });
+        message.error('Failed to fetch items. Please try again.');
       });
   };
 
   const handleEdit = () => {
     if (!editMode) {
       if (!passwordInput) {
-        notification.warning({
+        message.warning({
           message: 'Input Required',
           description: 'Please enter the password to edit items.',
         });
@@ -92,14 +96,14 @@ function Items() {
 
       if (passwordInput === 'GB') {
         setEditMode(true);
-        notification.success({
+        message.success({
           message: 'Edit Mode Activated',
           description: 'You have entered edit mode.',
         });
         setPasswordInput('');
         setOriginalItems(JSON.parse(JSON.stringify(items)));
       } else {
-        notification.error({
+        message.error({
           message: 'Invalid Password',
           description: 'The password you entered is incorrect.',
         });
@@ -111,42 +115,42 @@ function Items() {
 
   const saveChanges = () => {
     setLoading(true);
-  
+
     const updatePromises = items.map(item => {
       const originalItem = originalItems.find(orig => orig.itemid === item.itemid);
       const updates = {};
-  
+
       if (item.userInputStock !== undefined) {
         const currentStock = calculateAvailableStock(item.history);
         const difference = item.userInputStock - currentStock;
-  
+
         if (difference !== 0) {
           const newHistoryEntry = `${currentUser.userid} ${difference >= 0 ? '+' : ''}${difference} Stock ${new Date().toISOString()}`;
           updates.history = [...item.history, newHistoryEntry];
           updates.availablestock = calculateAvailableStock(updates.history);
         }
       }
-  
+
       if (item.minlevel !== originalItem.minlevel) {
         updates.minlevel = item.minlevel;
       }
-  
+
       if (item.maxlevel !== originalItem.maxlevel) {
         updates.maxlevel = item.maxlevel;
       }
-  
+
       if (item.description !== originalItem.description) {
         updates.description = item.description;
       }
-  
+
       if (item.material !== originalItem.material) {
         updates.material = item.material;
       }
-  
+
       if (item.comment !== originalItem.comment) {
         updates.comment = item.comment;
       }
-  
+
       if (Object.keys(updates).length > 0) {
         const updatedItem = { ...item, ...updates };
         return fetch(`${process.env.REACT_APP_API_URL}/items/${item.itemid}`, {
@@ -157,22 +161,21 @@ function Items() {
           body: JSON.stringify(updatedItem),
         });
       }
-  
+
       return Promise.resolve();
     });
-  
+
     Promise.all(updatePromises)
       .then(() => {
         setEditMode(false);
         fetchItems();
-        notification.success({
+        message.success({
           message: 'Changes Saved',
           description: 'All changes have been successfully saved.',
         });
       })
       .catch(error => {
-        console.error('Error:', error);
-        notification.error({
+        message.error({
           message: 'Save Error',
           description: 'Failed to save changes. Please try again.',
         });
@@ -180,12 +183,12 @@ function Items() {
       .finally(() => {
         setLoading(false);
       });
-  };  
+  };
 
   const handleCancel = () => {
     setItems(JSON.parse(JSON.stringify(originalItems)));
     setEditMode(false);
-    notification.info({
+    message.info({
       message: 'Edit Mode Cancelled',
       description: 'Changes have been discarded and edit mode exited.',
     });
@@ -203,14 +206,13 @@ function Items() {
         })
           .then(() => {
             fetchItems();
-            notification.success({
+            message.success({
               message: 'Item Deleted',
               description: 'The item has been successfully deleted.',
             });
           })
           .catch(error => {
-            console.error('Error:', error);
-            notification.error({
+            message.error({
               message: 'Delete Error',
               description: 'Failed to delete the item. Please try again.',
             });
@@ -251,18 +253,11 @@ function Items() {
         form.resetFields();
         fetchItems();
         setEditItem(null);
-        notification.success({
-          message: editItem ? 'Item Updated' : 'Item Added',
-          description: `The item has been successfully ${editItem ? 'updated' : 'added'}.`,
-        });
+        message.success(`The item has been successfully ${editItem ? 'updated' : 'added'}.`);
       })
       .catch(error => {
-        console.error('Error:', error);
         setLoading(false);
-        notification.error({
-          message: 'Submit Error',
-          description: 'Failed to save the item. Please try again.',
-        });
+        message.error('Failed to save the item. Please try again.');
       });
   };
 
@@ -317,8 +312,7 @@ function Items() {
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        notification.error({
+        message.error({
           message: 'Fetch Error',
           description: `Failed to fetch item history: ${error.message}`,
         });
@@ -366,24 +360,24 @@ function Items() {
 
   const handleAvailableStockChange = (value, record) => {
     const currentUserLocal = currentUser.userid;
-  
+
     const currentStock = calculateAvailableStock(record.history);
     const difference = value - currentStock;
-  
+
     if (difference === 0) return;
-  
+
     const newHistoryEntry = `${currentUserLocal} ${difference >= 0 ? '+' : ''}${difference} Stock ${new Date().toISOString()}`;
-  
+
     const updatedItem = {
       ...record,
       history: [...record.history, newHistoryEntry],
       availablestock: calculateAvailableStock([...record.history, newHistoryEntry])
     };
-  
+
     setItems(prevItems =>
       prevItems.map(item => (item.itemid === record.itemid ? updatedItem : item))
     );
-  };  
+  };
 
   const handleFieldChange = (value, record, fieldName) => {
     if (fieldName === 'availablestock') {
@@ -511,10 +505,6 @@ function Items() {
     );
   };
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
   const historyColumns = [
     {
       title: 'Change',
@@ -575,11 +565,7 @@ function Items() {
     return 0;
   });
 
-  const paginatedItems = sortedItems
-    .filter(item =>
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.itemid.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+  const paginatedItems = filteredItems
     .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
@@ -690,7 +676,7 @@ function Items() {
             <Pagination
               current={currentPage}
               pageSize={pageSize}
-              total={items.length}
+              total={filteredItems.length}
               onChange={handlePageChange}
               showSizeChanger={false}
               style={{ textAlign: 'right' }}

@@ -62,7 +62,6 @@ function OrderHistory({ itemSuggestions }) {
       setItems([{ itemId: '', description: '', quantityReceived: '' }]);
       setRefresh(!refresh);
     } catch (error) {
-      console.error('Submission error:', error);
       message.error('Please fill all fields correctly');
     }
   };

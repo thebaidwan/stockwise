@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Select, Skeleton, Tooltip } from 'antd';
+import { Card, Select, Skeleton, Tooltip, message } from 'antd';
 import { ResponsiveRadar } from '@nivo/radar';
 import axios from 'axios';
 import moment from 'moment';
@@ -27,7 +27,7 @@ const OrderTrends = ({ loading, itemSuggestions, mostUsedItem }) => {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/order-history`);
             setOrderData(response.data || []);
         } catch (error) {
-            console.error('Error fetching order data:', error);
+            message.error('Error fetching order data');
         }
     };
 

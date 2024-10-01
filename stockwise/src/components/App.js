@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
-import { Layout, Menu, Tooltip, notification } from 'antd';
+import { Layout, Menu, Tooltip, notification, message } from 'antd';
 import axios from 'axios';
 import { DashboardOutlined, HistoryOutlined, ShoppingOutlined, CheckSquareOutlined, DatabaseOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import '@fontsource/open-sans';
@@ -33,7 +33,10 @@ function App() {
         setItemSuggestions(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching items:', error);
+        message.error({
+          message: 'Error fetching items',
+          description: 'There was an error fetching the items.',
+        });
         setLoading(false);
       }
     };
@@ -83,7 +86,10 @@ function App() {
       localStorage.setItem('signedIn', 'true');
       setSignedIn(true);
     } catch (error) {
-      console.error('Sign in error:', error);
+      message.error({
+        message: 'Sign-in Error',
+        description: 'There was an error signing in.',
+      });
     }
   };
 
@@ -116,7 +122,10 @@ function App() {
         window.location.href = '/';
       } catch (error) {
         if (isMounted) {
-          console.error('Logout error:', error);
+          message.error({
+            message: 'Logout Error',
+            description: 'There was an error logging out.',
+          });
         }
       }
     }, 500);

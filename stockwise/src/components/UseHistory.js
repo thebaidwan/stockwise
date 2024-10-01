@@ -63,7 +63,6 @@ function UseHistory({ itemSuggestions }) {
       setItems([{ itemId: '', description: '', quantityUsed: '' }]);
       setRefresh(!refresh);
     } catch (error) {
-      console.error('Submission error:', error);
       message.error('Please fill all fields correctly');
     }
   };

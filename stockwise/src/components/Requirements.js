@@ -58,7 +58,6 @@ function Requirements({ itemSuggestions }) {
       setItems([{ itemId: '', description: '', quantityNeeded: '' }]);
       setRefresh(!refresh);
     } catch (error) {
-      console.error('Submission error:', error);
       message.error('Please fill all fields correctly');
     }
   };
