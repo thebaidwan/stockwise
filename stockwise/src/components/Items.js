@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Empty, Button, Table, Space, Modal, Form, Input, InputNumber, Spin, Pagination, Select, message, Tooltip } from 'antd';
-import { EditOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, PlusOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useUser } from './UserContext';
 
 function Items() {
@@ -568,6 +568,39 @@ function Items() {
   const paginatedItems = filteredItems
     .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+    const handleDownloadPDF = () => {
+      setLoading(true);
+      fetch(`${process.env.REACT_APP_API_URL}/items/download-pdf`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'items_list.pdf';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          message.error('Failed to download PDF. Please try again.');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    };
+
   return (
     <div style={{ marginRight: '30px' }}>
       <Spin spinning={loading} style={{ display: loading ? 'block' : 'none' }}>
@@ -635,6 +668,13 @@ function Items() {
                     Add Item
                   </Button>
                 )}
+                <Tooltip title="Download Items PDF">
+                  <Button
+                    onClick={handleDownloadPDF}
+                    icon={<DownloadOutlined />}
+                    style={{ marginRight: 10 }}
+                  />
+                </Tooltip>
                 <Input.Search
                   placeholder="Search"
                   style={{ width: 300, display: 'flex', alignItems: 'center', height: '40px' }}
