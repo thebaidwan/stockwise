@@ -573,12 +573,15 @@ function Items() {
       fetch(`${process.env.REACT_APP_API_URL}/items/download-pdf`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'application/pdf',
         },
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            return response.json().then(err => { throw err; });
+          }
+          if (response.headers.get('Content-Type') !== 'application/pdf') {
+            throw new Error('Received non-PDF content');
           }
           return response.blob();
         })
@@ -594,7 +597,7 @@ function Items() {
         })
         .catch(error => {
           console.error('Error:', error);
-          message.error('Failed to download PDF. Please try again.');
+          message.error(`Failed to download PDF: ${error.message || error.details || 'Unknown error'}`);
         })
         .finally(() => {
           setLoading(false);

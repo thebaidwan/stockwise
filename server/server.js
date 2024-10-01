@@ -143,85 +143,36 @@ const PDFDocument = require('pdfkit');
 app.get('/items/download-pdf', async (req, res) => {
   try {
     const items = await Item.find().sort({ itemid: 1 });
-    
-    // Create a new PDF document with letter size (612 x 792 points)
+    console.log(`Found ${items.length} items`);
+
     const doc = new PDFDocument({ 
       size: 'letter',
       margin: 50,
       bufferPages: true
     });
     
-    // Set up response headers
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=items_list.pdf');
-    
-    // Pipe the PDF document to the response
-    doc.pipe(res);
-    
-    // Add the title
+    // Buffer the PDF content
+    const buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+      const pdfData = Buffer.concat(buffers);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=items_list.pdf');
+      res.setHeader('Content-Length', pdfData.length);
+      res.end(pdfData);
+    });
+
+    // Generate PDF content (your existing code here)
     doc.fontSize(20).text('Items List', { align: 'center' });
     doc.moveDown();
     
-    // Define table properties
-    const tableTop = 150;
-    const itemIdX = 50;
-    const descriptionX = 120;
-    const materialX = 270;
-    const commentX = 380;
-    const blankX = 490;
-    
-    // Define column widths
-    const columnWidths = {
-      itemId: 70,
-      description: 150,
-      material: 110,
-      comment: 110,
-      blank: 72
-    };
-    
-    // Helper function to truncate text
-    function truncateText(text, width) {
-      return doc.widthOfString(text) > width ? 
-        text.substring(0, Math.floor(width / 7)) + '...' : 
-        text;
-    }
-    
-    // Draw table headers
-    doc.fontSize(10)
-      .text('Item ID', itemIdX, tableTop)
-      .text('Description', descriptionX, tableTop)
-      .text('Material', materialX, tableTop)
-      .text('Comment', commentX, tableTop)
-      .text('Blank', blankX, tableTop);
-    
-    // Draw a line under the headers
-    doc.moveTo(50, tableTop + 15)
-       .lineTo(562, tableTop + 15)
-       .stroke();
-    
-    let y = tableTop + 20;
-    
-    // Draw table rows
-    items.forEach(item => {
-      doc.text(truncateText(item.itemid, columnWidths.itemId), itemIdX, y, { width: columnWidths.itemId })
-         .text(truncateText(item.description, columnWidths.description), descriptionX, y, { width: columnWidths.description })
-         .text(truncateText(item.material, columnWidths.material), materialX, y, { width: columnWidths.material })
-         .text(truncateText(item.comment, columnWidths.comment), commentX, y, { width: columnWidths.comment });
-      // The fifth column is left blank intentionally
-      
-      y += 20;
-      
-      if (y > 700) {
-        doc.addPage({ size: 'letter', margin: 50 });
-        y = 50;
-      }
-    });
-    
-    // Finalize the PDF and end the stream
+    // ... (rest of your PDF generation code)
+
     doc.end();
+    console.log('PDF generation completed');
   } catch (err) {
     console.error('Error generating PDF:', err);
-    res.status(500).json({ error: 'Failed to generate PDF' });
+    res.status(500).json({ error: 'Failed to generate PDF', details: err.message });
   }
 });
 
