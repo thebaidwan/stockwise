@@ -568,40 +568,40 @@ function Items() {
   const paginatedItems = filteredItems
     .slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-    const handleDownloadPDF = () => {
-      setLoading(true);
-      fetch(`${process.env.REACT_APP_API_URL}/items/download-pdf`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
+  const handleDownloadPDF = () => {
+    setLoading(true);
+    fetch(`${process.env.REACT_APP_API_URL}/items/download-pdf`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/pdf',
+      },
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => { throw err; });
+        }
+        if (response.headers.get('Content-Type') !== 'application/pdf') {
+          throw new Error('Received non-PDF content');
+        }
+        return response.blob();
       })
-        .then(response => {
-          if (!response.ok) {
-            return response.json().then(err => { throw err; });
-          }
-          if (response.headers.get('Content-Type') !== 'application/pdf') {
-            throw new Error('Received non-PDF content');
-          }
-          return response.blob();
-        })
-        .then(blob => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = 'items_list.pdf';
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        })
-        .catch(error => {
-          message.error(`Failed to download PDF: ${error.message || error.details || 'Unknown error'}`);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    };
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'items_list.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        message.error(`Failed to download PDF: ${error.message || error.details || 'Unknown error'}`);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   return (
     <div style={{ marginRight: '30px' }}>

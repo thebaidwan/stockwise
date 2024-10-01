@@ -143,28 +143,12 @@ const PDFDocument = require('pdfkit');
 app.get('/items/download-pdf', async (req, res) => {
   try {
     const items = await Item.find().sort({ itemid: 1 });
-    console.log(`Found ${items.length} items`);
-
+    
     const doc = new PDFDocument({ 
       size: 'letter',
       margin: 50,
       bufferPages: true
     });
-    
-    // Buffer the PDF content
-    const buffers = [];
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => {
-      const pdfData = Buffer.concat(buffers);
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=items_list.pdf');
-      res.setHeader('Content-Length', pdfData.length);
-      res.end(pdfData);
-    });
-
-    // Generate PDF content (your existing code here)
-    doc.fontSize(20).text('Items List', { align: 'center' });
-    doc.moveDown();
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=items_list.pdf');
@@ -190,6 +174,7 @@ app.get('/items/download-pdf', async (req, res) => {
     };
     
     function truncateText(text, width) {
+      if (!text) return '';
       return doc.widthOfString(text) > width ? 
         text.substring(0, Math.floor(width / 7)) + '...' : 
         text;
@@ -223,10 +208,9 @@ app.get('/items/download-pdf', async (req, res) => {
     });
     
     doc.end();
-    console.log('PDF generation completed');
   } catch (err) {
     console.error('Error generating PDF:', err);
-    res.status(500).json({ error: 'Failed to generate PDF', details: err.message });
+    res.status(500).json({ error: 'Failed to generate PDF' });
   }
 });
 
