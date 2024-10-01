@@ -155,22 +155,22 @@ app.get('/items/download-pdf', async (req, res) => {
     
     doc.pipe(res);
     
-    doc.fontSize(20).text('Items List', { align: 'center' });
+    doc.fontSize(18).text('Items List', { align: 'center' });
     doc.moveDown();
     
     const tableTop = 150;
     const itemIdX = 50;
-    const descriptionX = 120;
-    const materialX = 270;
-    const commentX = 380;
-    const blankX = 490;
+    const descriptionX = 100;
+    const materialX = 250;
+    const commentX = 300;
+    const blankX = 350;
     
     const columnWidths = {
-      itemId: 70,
+      itemId: 50,
       description: 150,
-      material: 110,
-      comment: 110,
-      blank: 72
+      material: 50,
+      comment: 50,
+      blank: 162
     };
     
     function truncateText(text, width) {
@@ -180,7 +180,7 @@ app.get('/items/download-pdf', async (req, res) => {
         text;
     }
     
-    doc.fontSize(10)
+    doc.fontSize(8)
       .text('Item ID', itemIdX, tableTop)
       .text('Description', descriptionX, tableTop)
       .text('Material', materialX, tableTop)
@@ -197,7 +197,14 @@ app.get('/items/download-pdf', async (req, res) => {
       doc.text(truncateText(item.itemid, columnWidths.itemId), itemIdX, y, { width: columnWidths.itemId })
          .text(truncateText(item.description, columnWidths.description), descriptionX, y, { width: columnWidths.description })
          .text(truncateText(item.material, columnWidths.material), materialX, y, { width: columnWidths.material })
-         .text(truncateText(item.comment, columnWidths.comment), commentX, y, { width: columnWidths.comment });
+         .text(truncateText(item.comment, columnWidths.comment), commentX, y, { width: columnWidths.comment })
+         .text('', blankX, y, { width: columnWidths.blank });
+      
+      doc.rect(itemIdX - 2, y - 2, columnWidths.itemId + 4, 16).stroke();
+      doc.rect(descriptionX - 2, y - 2, columnWidths.description + 4, 16).stroke();
+      doc.rect(materialX - 2, y - 2, columnWidths.material + 4, 16).stroke();
+      doc.rect(commentX - 2, y - 2, columnWidths.comment + 4, 16).stroke();
+      doc.rect(blankX - 2, y - 2, columnWidths.blank + 4, 16).stroke();
       
       y += 20;
       
