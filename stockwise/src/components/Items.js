@@ -596,7 +596,6 @@ function Items() {
           window.URL.revokeObjectURL(url);
         })
         .catch(error => {
-          console.error('Error:', error);
           message.error(`Failed to download PDF: ${error.message || error.details || 'Unknown error'}`);
         })
         .finally(() => {

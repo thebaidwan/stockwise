@@ -165,9 +165,63 @@ app.get('/items/download-pdf', async (req, res) => {
     // Generate PDF content (your existing code here)
     doc.fontSize(20).text('Items List', { align: 'center' });
     doc.moveDown();
-    
-    // ... (rest of your PDF generation code)
 
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=items_list.pdf');
+    
+    doc.pipe(res);
+    
+    doc.fontSize(20).text('Items List', { align: 'center' });
+    doc.moveDown();
+    
+    const tableTop = 150;
+    const itemIdX = 50;
+    const descriptionX = 120;
+    const materialX = 270;
+    const commentX = 380;
+    const blankX = 490;
+    
+    const columnWidths = {
+      itemId: 70,
+      description: 150,
+      material: 110,
+      comment: 110,
+      blank: 72
+    };
+    
+    function truncateText(text, width) {
+      return doc.widthOfString(text) > width ? 
+        text.substring(0, Math.floor(width / 7)) + '...' : 
+        text;
+    }
+    
+    doc.fontSize(10)
+      .text('Item ID', itemIdX, tableTop)
+      .text('Description', descriptionX, tableTop)
+      .text('Material', materialX, tableTop)
+      .text('Comment', commentX, tableTop)
+      .text('Blank', blankX, tableTop);
+    
+    doc.moveTo(50, tableTop + 15)
+       .lineTo(562, tableTop + 15)
+       .stroke();
+    
+    let y = tableTop + 20;
+    
+    items.forEach(item => {
+      doc.text(truncateText(item.itemid, columnWidths.itemId), itemIdX, y, { width: columnWidths.itemId })
+         .text(truncateText(item.description, columnWidths.description), descriptionX, y, { width: columnWidths.description })
+         .text(truncateText(item.material, columnWidths.material), materialX, y, { width: columnWidths.material })
+         .text(truncateText(item.comment, columnWidths.comment), commentX, y, { width: columnWidths.comment });
+      
+      y += 20;
+      
+      if (y > 700) {
+        doc.addPage({ size: 'letter', margin: 50 });
+        y = 50;
+      }
+    });
+    
     doc.end();
     console.log('PDF generation completed');
   } catch (err) {
