@@ -77,43 +77,52 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
   };
 
   const columns = [
-    { 
-      title: 'Item ID', 
-      dataIndex: 'itemId', 
+    {
+      title: 'Item ID',
+      dataIndex: 'itemId',
       key: 'itemId',
       sorter: (a, b) => a.itemId.localeCompare(b.itemId),
     },
-    { 
-      title: 'Description', 
-      dataIndex: 'description', 
+    {
+      title: 'Description',
+      dataIndex: 'description',
       key: 'description',
       sorter: (a, b) => a.description.localeCompare(b.description),
     },
-    { 
-      title: 'Quantity Required', 
-      dataIndex: 'quantityNeeded', 
+    {
+      title: 'Quantity Required',
+      dataIndex: 'quantityNeeded',
       key: 'quantityNeeded',
       sorter: (a, b) => a.quantityNeeded - b.quantityNeeded,
     },
-    { 
-      title: 'Available Stock', 
-      dataIndex: 'availableStock', 
+    {
+      title: 'Available Stock',
+      dataIndex: 'availableStock',
       key: 'availableStock',
       sorter: (a, b) => a.availableStock - b.availableStock,
     },
-    { 
-      title: 'Earliest Required Date', 
-      dataIndex: 'neededBy', 
+    {
+      title: 'Earliest Required Date',
+      dataIndex: 'neededBy',
       key: 'neededBy',
       sorter: (a, b) => moment(a.neededBy).unix() - moment(b.neededBy).unix(),
     },
-    { 
-      title: 'Jobs', 
-      dataIndex: 'jobs', 
+    {
+      title: 'Jobs',
+      dataIndex: 'jobs',
       key: 'jobs',
       sorter: (a, b) => a.jobs.localeCompare(b.jobs),
     },
   ];
+
+  const filterOption = (input, option) => {
+    const itemId = option.value;
+    const item = itemSuggestions.find(item => item.itemid === itemId);
+    if (!item) return false;
+
+    const searchText = `${item.itemid} ${item.description} ${item.material}`.toLowerCase();
+    return searchText.includes(input.toLowerCase());
+  };
 
   const aggregatedData = aggregateRequirements(filteredRequirements);
   const filteredData = aggregatedData.filter(item => {
@@ -150,9 +159,7 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
             onChange={handleItemSelect}
             style={{ width: '100%' }}
             showSearch
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
+            filterOption={filterOption}
           >
             {itemSuggestions.map(item => (
               <Option key={item.itemid} value={item.itemid}>
@@ -196,10 +203,8 @@ const UpcomingRequirements = ({ loading, itemSuggestions, calculateAvailableStoc
             pagination={false}
             bordered
             onRow={(record) => ({
-              onMouseEnter: () => {
-              },
-              onMouseLeave: () => {
-              },
+              onMouseEnter: () => { },
+              onMouseLeave: () => { },
             })}
           />
           <Pagination
